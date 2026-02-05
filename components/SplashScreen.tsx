@@ -2,7 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { EraData, EraId } from '../types';
 import { ERAS } from '../constants';
-import { Camera } from 'lucide-react';
+import { Camera, Lamp, Drum, ChefHat, Gem, Sword, Tent } from 'lucide-react';
+
+const ERA_ICONS: Record<EraId, any> = {
+  [EraId.LANTERN_MAKER]: Lamp,
+  [EraId.RAMADAN_DRUMMER]: Drum,
+  [EraId.KUNAFA_MAKER]: ChefHat,
+  [EraId.EGYPTIAN_LADY]: Gem,
+  [EraId.CANNON_OFFICER]: Sword,
+  [EraId.DESERT_WANDERER]: Tent,
+};
 
 interface SplashScreenProps {
   onStart: () => void;
@@ -154,7 +163,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
       className="h-full w-full relative overflow-hidden bg-black"
       onClick={unmuteVideo}
     >
-      {/* Background Video Layer - Commented out as requested
+      {/* Background Video Layer */}
       <div
         className={`absolute inset-0 transition-all duration-[1800ms] ease-in-out ${isExiting ? 'opacity-0 scale-110 blur-2xl' : 'opacity-100 scale-100'}`}
       >
@@ -166,10 +175,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
           playsInline
           className="w-full h-full object-cover"
         >
-          <source src="./isis_test.mp4" type="video/mp4" />
+          <source src="./Ramadan_Video.mp4" type="video/mp4" />
         </video>
-      </div> 
-      */}
+      </div>
 
       {/* Title Section */}
       <div
@@ -220,6 +228,16 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
                       clipPath: 'polygon(10% 0%, 90% 0%, 100% 10%, 100% 100%, 0% 100%, 0% 10%)'
                     }}
                   >
+                    {/* Icon and Content Container */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pb-12">
+                      {(() => {
+                        const Icon = ERA_ICONS[era.id];
+                        return Icon ? (
+                          <Icon className="w-8 h-8 md:w-12 md:h-12 text-yellow-500/60 group-hover:text-yellow-400 group-hover:scale-110 transition-all duration-500 ease-out" />
+                        ) : null;
+                      })()}
+                    </div>
+
                     {/* Text Label at Bottom */}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-yellow-700/80 via-yellow-600/80 to-yellow-700/80 py-2 px-2 flex items-center justify-center">
                       <span className="text-white text-[10px] md:text-sm font-bold tracking-wider text-center">
@@ -258,7 +276,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
             <div className="relative">
               <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-lg animate-pulse"></div>
               <div className="relative border-b border-t border-yellow-500/30 py-2 px-8">
-                <span className="text-white text-sm uppercase tracking-[0.4em] font-light animate-pulse whitespace-nowrap">Choose your era</span>
+                <span className="text-white text-sm uppercase tracking-[0.4em] font-light animate-pulse whitespace-nowrap">Choose your Ramadan Vibe</span>
               </div>
             </div>
           </div>
