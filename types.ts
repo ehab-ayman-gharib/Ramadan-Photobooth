@@ -7,11 +7,12 @@ export enum AppScreen {
 }
 
 export enum EraId {
-  OLD_EGYPT = 'OLD_EGYPT',
-  COPTIC_EGYPT = 'COPTIC_EGYPT',
-  ISLAMIC_EGYPT = 'ISLAMIC_EGYPT',
-  MODERN_EGYPT = 'MODERN_EGYPT',
-  SNAP_A_MEMORY = 'SNAP_A_MEMORY',
+  LANTERN_MAKER = 'LANTERN_MAKER',
+  RAMADAN_DRUMMER = 'RAMADAN_DRUMMER',
+  KUNAFA_MAKER = 'KUNAFA_MAKER',
+  EGYPTIAN_LADY = 'EGYPTIAN_LADY',
+  CANNON_OFFICER = 'CANNON_OFFICER',
+  DESERT_WANDERER = 'DESERT_WANDERER',
 }
 
 export interface Scenery {
@@ -26,7 +27,6 @@ export interface EraData {
   description: string;
   previewImage: string;
   scenery: Scenery[];
-  stamps: string[];
   frames: string[];
   characters?: string[];
 }

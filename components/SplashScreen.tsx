@@ -171,15 +171,31 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
       </div> 
       */}
 
-      {/* Intro Frame Layer */}
+      {/* Title Section */}
       <div
-        className={`absolute inset-0 transition-all duration-[2000ms] ease-in-out ${isExiting ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
+        className={`absolute top-20 left-0 w-full z-10 flex flex-col items-center transition-all duration-[2200ms] ease-in-out ${isExiting ? 'opacity-0 -translate-y-10' : 'opacity-100 translate-y-0'}`}
       >
-        <img
-          src="./Splash-Screen/IntroFrame.png"
-          alt=""
-          className="w-full h-full object-fill drop-shadow-[0_0_50px_rgba(0,0,0,0.8)]"
-        />
+        <div className="relative">
+          {/* Glow effect behind title */}
+          <div className="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full animate-pulse"></div>
+
+          {/* Main Title Container */}
+          <div className="relative flex flex-col items-center gap-3 px-8 py-6">
+            {/* Arabic Title with Crescents */}
+            <div className="flex items-center gap-4">
+              <span className="text-yellow-500 text-3xl md:text-4xl animate-pulse">🌙</span>
+              <h1 className="text-yellow-500 text-4xl md:text-6xl font-bold text-center animate-pulse" style={{ fontFamily: 'serif' }}>
+                ليالي المحروسة
+              </h1>
+              <span className="text-yellow-500 text-3xl md:text-4xl animate-pulse">🌙</span>
+            </div>
+
+            {/* English Subtitle */}
+            <p className="text-yellow-600/80 text-sm md:text-lg uppercase tracking-[0.3em] font-light text-center">
+              Heritage Photo Booth • Cairo Spirit
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Footer & Eras Layer */}
@@ -195,24 +211,34 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
                 className="flex flex-col items-center gap-1 group cursor-pointer transition-transform hover:scale-105 active:scale-95"
                 onClick={() => handleEraClick(era)}
               >
-                {/* Preview Image (Renders as is, already has border) */}
+                {/* Button Container */}
                 <div className="relative w-[18.5vw] h-[31vw] md:w-40 md:h-64 flex items-center justify-center">
-                  <div className="w-full h-full flex items-center justify-center relative">
-                    <img
-                      src={era.previewImage}
-                      alt={era.name}
-                      className="w-full h-full object-contain grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-in-out"
-                    />
-
-                    {/* Snap a Memory specific Camera icon overlay */}
-                    {era.id === EraId.SNAP_A_MEMORY && (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <div className="bg-black/40 p-3 rounded-full backdrop-blur-sm group-hover:scale-110 transition-transform duration-500">
-                          <Camera className="w-8 h-8 md:w-12 md:h-12 text-yellow-500" />
-                        </div>
-                      </div>
-                    )}
+                  {/* Background with clip-path */}
+                  <div
+                    className="w-full h-full relative bg-gradient-to-b from-yellow-600/20 to-yellow-800/40 backdrop-blur-sm group-hover:from-yellow-500/30 group-hover:to-yellow-700/50 transition-all duration-300"
+                    style={{
+                      clipPath: 'polygon(10% 0%, 90% 0%, 100% 10%, 100% 100%, 0% 100%, 0% 10%)'
+                    }}
+                  >
+                    {/* Text Label at Bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-yellow-700/80 via-yellow-600/80 to-yellow-700/80 py-2 px-2 flex items-center justify-center">
+                      <span className="text-white text-[10px] md:text-sm font-bold tracking-wider text-center">
+                        {era.description.split(' - ')[0]}
+                      </span>
+                    </div>
                   </div>
+
+                  {/* SVG Border Overlay */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+                    <polygon
+                      points="10%,0% 90%,0% 100%,10% 100%,100% 0%,100% 0%,10%"
+                      fill="none"
+                      stroke="rgb(234 179 8 / 0.5)"
+                      strokeWidth="2"
+                      className="group-hover:stroke-yellow-400 transition-all duration-300"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </svg>
                 </div>
               </div>
             ))}

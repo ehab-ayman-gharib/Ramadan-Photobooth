@@ -40,25 +40,15 @@ const App: React.FC = () => {
         attempts++;
         console.log(`[Processing] Attempt ${attempts} / ${maxAttempts}...`);
 
-        let resultImage: string;
+        // Run Gemini AI transformation for all eras
+        const result = await generateHistoricalImage(imageSrc, selectedEra, faceData);
+        const resultImage = result.image;
+        setGeneratedPrompt(result.prompt);
 
-        if (selectedEra.id === EraId.SNAP_A_MEMORY) {
-          // "Snap a Memory" mode: Skip AI generation, just use the original photo
-          resultImage = imageSrc;
-          setGeneratedPrompt('Snap a Memory (No AI Prompt)');
-          // Small artificial delay for consistent UX
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } else {
-          // Historical eras: Run Gemini AI transformation
-          const result = await generateHistoricalImage(imageSrc, selectedEra, faceData);
-          resultImage = result.image;
-          setGeneratedPrompt(result.prompt);
-        }
+        // Apply Frame and Background (no stamps, just compositing)
+        const framedImage = await applyEraStamp(resultImage, selectedEra);
 
-        // Apply Era Stamp/Frame (Works for both AI and non-AI modes)
-        const stampedImage = await applyEraStamp(resultImage, selectedEra);
-
-        setGeneratedImage(stampedImage);
+        setGeneratedImage(framedImage);
         setCurrentScreen(AppScreen.RESULT);
         return; // Success! Exit the function
       } catch (error) {

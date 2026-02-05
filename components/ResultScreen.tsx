@@ -53,21 +53,34 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, er
       if (!imageSrc) return;
       setIsUploading(true);
       try {
-        let blob: Blob;
-        if (imageSrc.startsWith('data:')) {
-          const response = await fetch(imageSrc);
-          blob = await response.blob();
-        } else {
-          const response = await fetch(imageSrc);
-          blob = await response.blob();
-        }
+        // Convert image to JPG format
+        const img = new Image();
+        img.src = imageSrc;
+        await new Promise((resolve) => { img.onload = resolve; });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Could not get canvas context');
+
+        ctx.drawImage(img, 0, 0);
+
+        // Convert to JPG blob with 90% quality
+        const blob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob(
+            (b) => b ? resolve(b) : reject(new Error('Blob creation failed')),
+            'image/jpeg',
+            0.9
+          );
+        });
 
         const formData = new FormData();
-        formData.append('image', blob, 'result.png');
-        formData.append('folder', 'kemet-mirror');
+        formData.append('image', blob, 'result.jpg');
+        formData.append('folder', 'Ramadan-2026');
         formData.append('metadata', JSON.stringify({
-          event: 'Cairo Airport Photobooth',
-          photobooth_id: 'kemet_mirror_1',
+          event: 'Ramadan-2026',
+          photobooth_id: 'Ramadan-2026',
           era: era.name,
           prompt: prompt
         }));
@@ -91,13 +104,31 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, er
     uploadImage();
   }, [imageSrc]);
 
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = imageSrc;
-    link.download = `chronolens-${era.id}-${Date.now()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async () => {
+    // Convert to JPG before downloading
+    const img = new Image();
+    img.src = imageSrc;
+    await new Promise((resolve) => { img.onload = resolve; });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.drawImage(img, 0, 0);
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Ramadan-2026-${era.id}-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 'image/jpeg', 0.9);
   };
 
   const handlePrint = async () => {

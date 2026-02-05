@@ -1,4 +1,4 @@
-import { EraData, EraId } from '../types';
+import { EraData } from '../types';
 
 export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> => {
     return new Promise((resolve) => {
@@ -34,10 +34,8 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
 
         const mainImage = createSafeImage(imageSrc, true);
 
-        // Background selection based on era
-        const backgroundPath = era.id === EraId.OLD_EGYPT
-            ? './Backgrounds/Old-Egyptian/Old-Egyptian-Background.jpg'
-            : './Backgrounds/Generic-Background.jpg';
+        // Background selection - using generic background for all Ramadan eras
+        const backgroundPath = './Backgrounds/Generic-Background.jpg';
         const backgroundImg = createSafeImage(backgroundPath, true);
 
         // Frame selection (top layer)
