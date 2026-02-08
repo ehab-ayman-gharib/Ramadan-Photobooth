@@ -1,9 +1,9 @@
 {
-  "name": "egypt's-time-machine",
+  "name": "ramadan-2026-photobooth",
   "private": true,
   "version": "0.0.0",
-  "author": "Egypt Time Machine",
-  "description": "Egypt Time Machine Photobooth Application",
+  "author": "5dVR",
+  "description": "Ramadan 2026 Photobooth Application",
   "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
@@ -36,8 +36,8 @@
     "wait-on": "^9.0.3"
   },
   "build": {
-    "appId": "com.egypt.timemachine",
-    "productName": "Egypt Time Machine",
+    "appId": "com.5dvr.ramadan2026",
+    "productName": "Ramadan 2026 Photobooth",
     "directories": {
       "output": "release"
     },

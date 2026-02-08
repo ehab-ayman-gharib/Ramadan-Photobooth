@@ -40,12 +40,19 @@ const App: React.FC = () => {
         attempts++;
         console.log(`[Processing] Attempt ${attempts} / ${maxAttempts}...`);
 
-        // Run Gemini AI transformation for all eras
-        const result = await generateHistoricalImage(imageSrc, selectedEra, faceData);
-        const resultImage = result.image;
-        setGeneratedPrompt(result.prompt);
+        let resultImage = imageSrc;
+        let resultPrompt = '';
 
-        // Apply Frame and Background (no stamps, just compositing)
+        if (selectedEra.isAiEnabled !== false) {
+          // Run Gemini AI transformation for all eras except those with isAiEnabled: false
+          const result = await generateHistoricalImage(imageSrc, selectedEra, faceData);
+          resultImage = result.image;
+          resultPrompt = result.prompt;
+        }
+
+        setGeneratedPrompt(resultPrompt);
+
+        // Apply Frame and Background
         const framedImage = await applyEraStamp(resultImage, selectedEra);
 
         setGeneratedImage(framedImage);

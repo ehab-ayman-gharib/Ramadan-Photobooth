@@ -13,6 +13,7 @@ export enum EraId {
   EGYPTIAN_LADY = 'EGYPTIAN_LADY',
   CANNON_OFFICER = 'CANNON_OFFICER',
   DESERT_WANDERER = 'DESERT_WANDERER',
+  SNAP_A_MEMORY = 'SNAP_A_MEMORY',
 }
 
 export interface Scenery {
@@ -29,6 +30,7 @@ export interface EraData {
   scenery: Scenery[];
   frames: string[];
   characters?: string[];
+  isAiEnabled?: boolean;
 }
 
 export interface FaceDetectionResult {

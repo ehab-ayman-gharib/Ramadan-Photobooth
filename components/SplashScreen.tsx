@@ -11,6 +11,7 @@ const ERA_ICONS: Record<EraId, any> = {
   [EraId.EGYPTIAN_LADY]: Gem,
   [EraId.CANNON_OFFICER]: Sword,
   [EraId.DESERT_WANDERER]: Tent,
+  [EraId.SNAP_A_MEMORY]: Camera,
 };
 
 interface SplashScreenProps {
@@ -212,7 +213,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
       >
         <div className="relative flex flex-col items-center justify-end w-full pb-8">
           {/* Era Selection Row */}
-          <div className="flex justify-center items-end gap-1 md:gap-4 mb-6 px-2 w-full max-w-7xl">
+          <div className="flex justify-center items-end gap-1 md:gap-2 mb-6 px-1 w-full max-w-full">
             {ERAS.map((era) => (
               <div
                 key={era.id}
@@ -220,7 +221,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
                 onClick={() => handleEraClick(era)}
               >
                 {/* Button Container */}
-                <div className="relative w-[18.5vw] h-[31vw] md:w-40 md:h-64 flex items-center justify-center">
+                <div className="relative w-[12vw] h-[21vw] md:w-32 md:h-48 flex items-center justify-center">
                   {/* Background with clip-path */}
                   <div
                     className="w-full h-full relative bg-gradient-to-b from-yellow-600/20 to-yellow-800/40 backdrop-blur-sm group-hover:from-yellow-500/30 group-hover:to-yellow-700/50 transition-all duration-300"

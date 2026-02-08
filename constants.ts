@@ -128,5 +128,14 @@ export const ERAS: EraData[] = [
       }
     ],
     frames: ["./Frames/Ramadan/1.png"]
+  },
+  {
+    id: EraId.SNAP_A_MEMORY,
+    name: "Snap a Memory",
+    description: "التقط ذكرى - Simply snap a photo with our beautiful Ramadan frame",
+    previewImage: "./Ramadan/Snap-Preview.png",
+    scenery: [],
+    frames: ["./Frames/Ramadan/1.png"],
+    isAiEnabled: false
   }
 ];

@@ -1,6 +1,6 @@
 {
-  "name": "Egypt's Time Machine",
-  "description": "A time-traveling photobooth that transforms you into historical Egyptian eras using Gemini AI and facial detection.",
+  "name": "Ramadan 2026 Photobooth",
+  "description": "A Photobooth app that transforms you into historical Egyptian eras using Gemini AI and facial detection.",
   "requestFramePermissions": [
     "camera"
   ]
