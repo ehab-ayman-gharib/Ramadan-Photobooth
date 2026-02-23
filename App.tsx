@@ -26,9 +26,11 @@ const App: React.FC = () => {
     setCurrentScreen(AppScreen.CAMERA);
   };
 
-  const handleCapture = async (imageSrc: string, faceData: FaceDetectionResult) => {
-    if (!selectedEra) return;
+  const handleCapture = async (imageSrc: string, faceData: FaceDetectionResult, overrideEra?: EraData) => {
+    const activeEra = overrideEra || selectedEra;
+    if (!activeEra) return;
 
+    if (overrideEra) setSelectedEra(overrideEra);
     setFaceDetectionResult(faceData);
     setCurrentScreen(AppScreen.PROCESSING);
 
@@ -43,9 +45,9 @@ const App: React.FC = () => {
         let resultImage = imageSrc;
         let resultPrompt = '';
 
-        if (selectedEra.isAiEnabled !== false) {
+        if (activeEra.isAiEnabled !== false) {
           // Run Gemini AI transformation for all eras except those with isAiEnabled: false
-          const result = await generateHistoricalImage(imageSrc, selectedEra, faceData);
+          const result = await generateHistoricalImage(imageSrc, activeEra, faceData);
           resultImage = result.image;
           resultPrompt = result.prompt;
         }
@@ -53,7 +55,7 @@ const App: React.FC = () => {
         setGeneratedPrompt(resultPrompt);
 
         // Apply Frame and Background
-        const framedImage = await applyEraStamp(resultImage, selectedEra);
+        const framedImage = await applyEraStamp(resultImage, activeEra);
 
         setGeneratedImage(framedImage);
         setCurrentScreen(AppScreen.RESULT);
@@ -90,10 +92,10 @@ const App: React.FC = () => {
   const renderScreen = () => {
     switch (currentScreen) {
       case AppScreen.SPLASH:
-        return <SplashScreen onStart={handleStart} onSelectEra={handleEraSelect} isMuted={isMuted} setIsMuted={setIsMuted} />;
+        return <SplashScreen onStart={handleStart} onSelectEra={handleEraSelect} isMuted={isMuted} setIsMuted={setIsMuted} onCapture={handleCapture} />;
       case AppScreen.ERA_SELECTION:
         // This screen is now merged with SPLASH
-        return <SplashScreen onStart={handleStart} onSelectEra={handleEraSelect} isMuted={isMuted} setIsMuted={setIsMuted} />;
+        return <SplashScreen onStart={handleStart} onSelectEra={handleEraSelect} isMuted={isMuted} setIsMuted={setIsMuted} onCapture={handleCapture} />;
       case AppScreen.CAMERA:
         return <CameraCapture era={selectedEra} onCapture={handleCapture} onBack={() => setCurrentScreen(AppScreen.ERA_SELECTION)} />;
       case AppScreen.PROCESSING:

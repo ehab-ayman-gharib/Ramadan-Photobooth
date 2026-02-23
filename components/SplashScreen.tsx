@@ -1,36 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { EraData, EraId } from '../types';
+import { EraData, EraId, FaceDetectionResult } from '../types';
+import { CameraCapture } from './CameraCapture';
 import { ERAS } from '../constants';
-import { Camera, Lamp, Drum, ChefHat, Gem, Sword, Tent } from 'lucide-react';
 
-const ERA_ICONS: Record<EraId, any> = {
-  [EraId.LANTERN_MAKER]: Lamp,
-  [EraId.RAMADAN_DRUMMER]: Drum,
-  [EraId.KUNAFA_MAKER]: ChefHat,
-  [EraId.EGYPTIAN_LADY]: Gem,
-  [EraId.CANNON_OFFICER]: Sword,
-  [EraId.DESERT_WANDERER]: Tent,
-  [EraId.SNAP_A_MEMORY]: Camera,
-};
 
 interface SplashScreenProps {
   onStart: () => void;
   onSelectEra: (era: EraData) => void;
   isMuted: boolean;
   setIsMuted: (muted: boolean) => void;
+  onCapture?: (imageSrc: string, faceData: FaceDetectionResult, overrideEra?: EraData) => void;
 }
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra, isMuted, setIsMuted }) => {
+export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra, isMuted, setIsMuted, onCapture }) => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [isExiting, setIsExiting] = useState(false);
   const isExitingRef = useRef(false);
 
-  const unmuteVideo = () => {
-    // Enable Audio
-    if (videoRef.current && isMuted) {
-      videoRef.current.muted = false;
+  const handleInteraction = () => {
+    // Enable Audio if needed globally
+    if (isMuted) {
       setIsMuted(false);
     }
 
@@ -42,16 +32,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
     }
   };
 
-  const handleEraClick = (era: EraData) => {
-    if (isExiting) return;
-    unmuteVideo();
 
-    setIsExiting(true);
-    isExitingRef.current = true;
-    setTimeout(() => {
-      onSelectEra(era);
-    }, 1800);
-  };
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -162,127 +143,55 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
   return (
     <div
       className="h-full w-full relative overflow-hidden bg-black"
-      onClick={unmuteVideo}
+      onClick={handleInteraction}
     >
-      {/* Background Video Layer */}
+      {/* Camera Capture Feed Layer */}
+      {onCapture && (
+        <div className="absolute inset-0 z-0">
+          <CameraCapture
+            era={ERAS.find(e => e.id === EraId.SNAP_A_MEMORY) || ERAS[0]}
+            onCapture={(img, face) => {
+              onCapture(img, face, ERAS.find(e => e.id === EraId.SNAP_A_MEMORY) || ERAS[0]);
+            }}
+            onBack={() => { }}
+            isSplash={true}
+          />
+        </div>
+      )}
+
+      {/* Background Image Layer */}
       <div
-        className={`absolute inset-0 transition-all duration-[1800ms] ease-in-out ${isExiting ? 'opacity-0 scale-110 blur-2xl' : 'opacity-100 scale-100'}`}
+        className={`absolute inset-0 pointer-events-none z-10 transition-all duration-[1800ms] ease-in-out ${isExiting ? 'opacity-0 scale-110 blur-2xl' : 'opacity-100 scale-100'}`}
       >
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted={isMuted}
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          <source src="./Ramadan_Video.mp4" type="video/mp4" />
-        </video>
+        <img
+          src="./Splash-Screen/Ramadan-Frame.png"
+          alt="Ramadan Frame"
+          className="w-full h-full object-fill pointer-events-none"
+          draggable={false}
+        />
       </div>
 
       {/* Title Section */}
       <div
         className={`absolute top-20 left-0 w-full z-10 flex flex-col items-center transition-all duration-[2200ms] ease-in-out ${isExiting ? 'opacity-0 -translate-y-10' : 'opacity-100 translate-y-0'}`}
       >
-        <div className="relative">
+        <div className="relative w-4/5 max-w-lg">
           {/* Glow effect behind title */}
           <div className="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full animate-pulse"></div>
 
           {/* Main Title Container */}
           <div className="relative flex flex-col items-center gap-3 px-8 py-6">
-            {/* Arabic Title with Crescents */}
-            <div className="flex items-center gap-4">
-              <span className="text-yellow-500 text-3xl md:text-4xl animate-pulse">🌙</span>
-              <h1 className="text-yellow-500 text-4xl md:text-6xl font-bold text-center animate-pulse" style={{ fontFamily: 'serif' }}>
-                ليالي المحروسة
-              </h1>
-              <span className="text-yellow-500 text-3xl md:text-4xl animate-pulse">🌙</span>
-            </div>
-
-            {/* English Subtitle */}
-            <p className="text-yellow-600/80 text-sm md:text-lg uppercase tracking-[0.3em] font-light text-center">
-              Heritage Photo Booth • Cairo Spirit
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer & Eras Layer */}
-      <div
-        className={`absolute bottom-0 left-0 w-full z-10 transition-all duration-[2200ms] ease-in-out ${isExiting ? 'opacity-0 translate-y-10' : 'opacity-100 translate-y-0'}`}
-      >
-        <div className="relative flex flex-col items-center justify-end w-full pb-8">
-          {/* Era Selection Row */}
-          <div className="flex justify-center items-end gap-1 md:gap-2 mb-6 px-1 w-full max-w-full">
-            {ERAS.map((era) => (
-              <div
-                key={era.id}
-                className="flex flex-col items-center gap-1 group cursor-pointer transition-transform hover:scale-105 active:scale-95"
-                onClick={() => handleEraClick(era)}
-              >
-                {/* Button Container */}
-                <div className="relative w-[12vw] h-[21vw] md:w-32 md:h-48 flex items-center justify-center">
-                  {/* Background with clip-path */}
-                  <div
-                    className="w-full h-full relative bg-gradient-to-b from-yellow-600/20 to-yellow-800/40 backdrop-blur-sm group-hover:from-yellow-500/30 group-hover:to-yellow-700/50 transition-all duration-300"
-                    style={{
-                      clipPath: 'polygon(10% 0%, 90% 0%, 100% 10%, 100% 100%, 0% 100%, 0% 10%)'
-                    }}
-                  >
-                    {/* Icon and Content Container */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pb-12">
-                      {(() => {
-                        const Icon = ERA_ICONS[era.id];
-                        return Icon ? (
-                          <Icon className="w-8 h-8 md:w-12 md:h-12 text-yellow-500/60 group-hover:text-yellow-400 group-hover:scale-110 transition-all duration-500 ease-out" />
-                        ) : null;
-                      })()}
-                    </div>
-
-                    {/* Text Label at Bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-yellow-700/80 via-yellow-600/80 to-yellow-700/80 py-2 px-2 flex items-center justify-center">
-                      <span className="text-white text-[10px] md:text-sm font-bold tracking-wider text-center">
-                        {era.description.split(' - ')[0]}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* SVG Border Overlay */}
-                  <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
-                    <polygon
-                      points="10%,0% 90%,0% 100%,10% 100%,100% 0%,100% 0%,10%"
-                      fill="none"
-                      stroke="rgb(234 179 8 / 0.5)"
-                      strokeWidth="2"
-                      className="group-hover:stroke-yellow-400 transition-all duration-300"
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  </svg>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Footer Image Underlying everything */}
-          <div className="absolute bottom-0 left-0 w-full pointer-events-none -z-10">
             <img
-              src="./Splash-Screen/Splash-Footer.png"
-              alt=""
-              className="w-full h-auto object-contain"
+              src="./Splash-Screen/Ramadan-Kareem.png"
+              alt="Ramadan Kareem"
+              className="w-2/5 h-auto object-contain drop-shadow-2xl animate-pulse"
+              draggable={false}
             />
           </div>
-
-          {/* Tap to Enter Pulsing Text */}
-          <div className="mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-lg animate-pulse"></div>
-              <div className="relative border-b border-t border-yellow-500/30 py-2 px-8">
-                <span className="text-white text-sm uppercase tracking-[0.4em] font-light animate-pulse whitespace-nowrap">Choose your Ramadan Vibe</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
+
+      {/* Footer & Eras Layer Removed */}
 
       {/* Particles Layer (Three.js) */}
       <div ref={mountRef} className="absolute inset-0 z-[5] pointer-events-none" />

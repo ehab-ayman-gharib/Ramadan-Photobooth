@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { RefreshCw, AlertCircle, ChevronLeft, Upload } from 'lucide-react';
+import { RefreshCw, AlertCircle, ChevronLeft } from 'lucide-react';
 import { loadFaceApiModels, detectFaces } from '../services/faceService';
 import { EraData, FaceDetectionResult, EraId } from '../types';
 
@@ -8,9 +8,10 @@ interface CameraCaptureProps {
   onCapture: (image: string, faceData: FaceDetectionResult) => void;
   onBack: () => void;
   isProcessing?: boolean;
+  isSplash?: boolean;
 }
 
-export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, onBack, isProcessing = false }) => {
+export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, onBack, isProcessing = false, isSplash = false }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -19,7 +20,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
   const [isDetecting, setIsDetecting] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showFlash, setShowFlash] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -118,95 +118,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
     setIsDetecting(false);
   }, [era, modelsLoaded, onCapture, isDetecting]);
 
-  const handleFileUpload = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsDetecting(true);
-
-    // Create an image element to read the file
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-
-    img.onload = async () => {
-      if (!canvasRef.current) return;
-      const canvas = canvasRef.current;
-
-      // Only apply 9:16 cropping for Snap a Memory mode
-      // For AI modes, keep original aspect ratio (Gemini will output 9:16 anyway)
-      const shouldCropTo916 = era?.id === EraId.SNAP_A_MEMORY;
-
-      if (shouldCropTo916) {
-        // Force 9:16 aspect ratio for Snap a Memory mode
-        const targetAspectRatio = 9 / 16; // Portrait (width/height)
-        const imgAspectRatio = img.width / img.height;
-
-        let sourceX = 0;
-        let sourceY = 0;
-        let sourceWidth = img.width;
-        let sourceHeight = img.height;
-
-        // Crop to 9:16 if needed
-        if (imgAspectRatio > targetAspectRatio) {
-          // Image is wider than 9:16, crop the sides
-          sourceWidth = img.height * targetAspectRatio;
-          sourceX = (img.width - sourceWidth) / 2;
-        } else if (imgAspectRatio < targetAspectRatio) {
-          // Image is taller than 9:16, crop top/bottom
-          sourceHeight = img.width / targetAspectRatio;
-          sourceY = (img.height - sourceHeight) / 2;
-        }
-
-        // Set canvas to 9:16 aspect ratio (1080x1920)
-        const canvasWidth = 1080;
-        const canvasHeight = 1920;
-        canvas.width = canvasWidth;
-        canvas.height = canvasHeight;
-        const ctx = canvas.getContext('2d');
-
-        if (ctx) {
-          // Draw the cropped image to canvas at 9:16 ratio
-          ctx.drawImage(
-            img,
-            sourceX, sourceY, sourceWidth, sourceHeight,  // Source crop
-            0, 0, canvasWidth, canvasHeight               // Destination
-          );
-          const imageData = canvas.toDataURL('image/jpeg', 0.9);
-          const faceData = await detectFaces(img, modelsLoaded);
-          onCapture(imageData, faceData);
-        }
-      } else {
-        // For AI modes: Keep original aspect ratio, but limit size
-        const MAX_DIMENSION = 1500;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-          const ratio = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
-          width = Math.round(width * ratio);
-          height = Math.round(height * ratio);
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const imageData = canvas.toDataURL('image/jpeg', 0.9);
-          const faceData = await detectFaces(img, modelsLoaded);
-          onCapture(imageData, faceData);
-        }
-      }
-      setIsDetecting(false);
-      if (event.target) event.target.value = ''; // Reset input
-    };
-  };
-
   // Store capture handler in ref to avoid effect dependency issues
   const captureRef = useRef(handleCaptureImmediate);
   useEffect(() => {
@@ -233,15 +144,15 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
         setTimeout(() => {
           setShowFlash(false);
           setCountdown(null);
-        }, 500);
-      }, 50);
+        }, 800);
+      }, 1000);
       return () => clearTimeout(captureTimer);
     }
   }, [countdown]);
 
   const startCaptureSequence = () => {
     if (countdown !== null || isDetecting) return;
-    setCountdown(3);
+    setCountdown(4);
   };
 
   if (error) {
@@ -255,7 +166,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
   }
 
   return (
-    <div className="h-full w-full bg-black relative flex flex-col">
+    <div className={`h-full w-full ${isSplash ? 'bg-transparent' : 'bg-black'} relative flex flex-col`}>
       {/* Video Feed - Full Screen Portrait */}
       <div className="absolute inset-0 z-0">
         <video
@@ -279,20 +190,16 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
         </div>
       )}
 
-      {/* Countdown Overlay - Using Custom Container */}
+      {/* Countdown Overlay */}
       {countdown !== null && countdown > 0 && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 pointer-events-none">
-          <div className="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center animate-pulse-slow">
-            {/* Background Container Image */}
-            <img
-              src="./Countdown_Container.png"
-              alt=""
-              className="absolute inset-0 w-full h-full object-contain"
-            />
-
+          <div className="flex items-center justify-center animate-bounce-slow">
             {/* Countdown Text with Custom Font */}
-            <span className="relative z-10 text-7xl md:text-[9rem] font-bold text-white countdown-font drop-shadow-[0_0_20px_rgba(234,179,8,0.4)]">
-              {countdown}
+            <span
+              className={`relative z-10 font-bold text-transparent bg-clip-text bg-gradient-to-b from-white via-yellow-100 to-yellow-400 drop-shadow-[0_0_30px_rgba(234,179,8,0.6)] ${countdown === 1 ? 'text-5xl md:text-7xl' : 'text-8xl md:text-[12rem]'}`}
+              style={{ fontFamily: "'ReemKufi', sans-serif" }}
+            >
+              {countdown === 1 ? 'جاهز ؟' : countdown - 1}
             </span>
           </div>
         </div>
@@ -304,7 +211,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
       )}
 
       {/* Header */}
-      {!isProcessing && (
+      {!isProcessing && !isSplash && (
         <div className="absolute top-0 left-0 right-0 p-6 z-20 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent">
           <button
             onClick={onBack}
@@ -320,64 +227,52 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
 
       {/* Footer Controls */}
       {!isProcessing && (
-        <div className="absolute bottom-0 left-0 right-0 p-10 pb-16 z-20 flex justify-center items-center gap-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-          {/* Upload Button */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileSelect}
-            accept="image/*"
-            className="hidden"
-          />
-          <button
-            onClick={handleFileUpload}
-            disabled={isDetecting || countdown !== null}
-            className="p-4 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/30 transition-colors disabled:opacity-50"
-          >
-            <Upload size={24} />
-          </button>
+        <div className={`absolute bottom-0 left-0 right-0 p-10 z-20 flex flex-col items-center gap-6 ${isSplash ? 'pb-48 bg-transparent' : 'pb-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent'}`}>
+          {/* Hint Text */}
+          <p className="text-white text-2xl md:text-3xl font-bold arabic-font drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-pulse-slow">
+            اضغط لتلتقط الصورة
+          </p>
 
-          {/* Capture Button */}
-          <button
-            onClick={startCaptureSequence}
-            disabled={isDetecting || countdown !== null}
-            className="group relative w-28 h-28 flex items-center justify-center focus:outline-none"
-          >
-            {/* Idle Pulse Ring - Only visible when idle */}
-            {!isDetecting && countdown === null && (
-              <div className="absolute inset-0 rounded-full border-[6px] border-white/30 animate-pulse-medium"></div>
-            )}
-
-            {/* Main Button Construction */}
-            <div className={`
-            relative w-20 h-20 rounded-full border-[4px] flex items-center justify-center transition-all duration-300 z-10 bg-black/20 backdrop-blur-sm
-            ${isDetecting
-                ? 'border-slate-500 scale-95'
-                : countdown !== null
-                  ? 'border-white scale-100' // Static during countdown
-                  : 'border-white group-hover:scale-105 group-active:scale-95' // Interactive idle
-              }
-          `}>
-              {/* Inner Shutter Circle */}
-              <div className={`
-               rounded-full transition-all duration-300 shadow-sm
-               ${isDetecting
-                  ? 'w-2 h-2 bg-slate-500 opacity-0'
-                  : 'w-16 h-16 bg-white' // Simple white circle always
-                }
-             `}></div>
-
-              {/* Spinner Overlay */}
-              {isDetecting && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <RefreshCw className="w-8 h-8 text-white animate-spin" />
-                </div>
+          <div className="flex justify-center items-center gap-8">
+            {/* Capture Button */}
+            <button
+              onClick={startCaptureSequence}
+              disabled={isDetecting || countdown !== null}
+              className="group relative w-28 h-28 flex items-center justify-center focus:outline-none"
+            >
+              {/* Idle Pulse Ring - Only visible when idle */}
+              {!isDetecting && countdown === null && (
+                <div className="absolute inset-0 rounded-full border-[6px] border-white/30 animate-pulse-medium"></div>
               )}
-            </div>
-          </button>
 
-          {/* Placeholder for symmetry */}
-          <div className="w-[56px]"></div>
+              {/* Main Button Construction */}
+              <div className={`
+              relative w-20 h-20 rounded-full border-[4px] flex items-center justify-center transition-all duration-300 z-10 bg-black/20 backdrop-blur-sm
+              ${isDetecting
+                  ? 'border-slate-500 scale-95'
+                  : countdown !== null
+                    ? 'border-white scale-100' // Static during countdown
+                    : 'border-white group-hover:scale-105 group-active:scale-95' // Interactive idle
+                }
+            `}>
+                {/* Inner Shutter Circle */}
+                <div className={`
+                 rounded-full transition-all duration-300 shadow-sm
+                 ${isDetecting
+                    ? 'w-2 h-2 bg-slate-500 opacity-0'
+                    : 'w-16 h-16 bg-white' // Simple white circle always
+                  }
+               `}></div>
+
+                {/* Spinner Overlay */}
+                {isDetecting && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <RefreshCw className="w-8 h-8 text-white animate-spin" />
+                  </div>
+                )}
+              </div>
+            </button>
+          </div>
         </div>
       )}
     </div>
