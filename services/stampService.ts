@@ -49,13 +49,20 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
             canvas.width = 1080;
             canvas.height = 1920;
 
-            // 1. Draw Main Image - Background Layer
-            const imageScale = Math.max(canvas.width / mainImage.width, canvas.height / mainImage.height);
-            const scaledWidth = mainImage.width * imageScale;
+            // 1. Draw Main Image - Figma-aligned layout:
+            //    Scale to arch inner width, anchor image to top of arch opening.
+            //    Matches Figma spec: image width 968px in 1080 canvas, top-anchored.
+            const archSideInset = 56;  // ~56px each side (1080 - 968) / 2
+            const archTopOffset = 0;   // anchored to very top of canvas
+            const archInnerWidth = canvas.width - archSideInset * 2; // 968px
+
+            // Scale image so its width fills the arch inner width
+            const imageScale = archInnerWidth / mainImage.width;
+            const scaledWidth = archInnerWidth;
             const scaledHeight = mainImage.height * imageScale;
 
-            const drawX = (canvas.width - scaledWidth) / 2;
-            const drawY = (canvas.height - scaledHeight) / 2;
+            const drawX = archSideInset; // aligned to arch left edge
+            const drawY = archTopOffset; // anchored to top of arch opening
 
             ctx.drawImage(mainImage, drawX, drawY, scaledWidth, scaledHeight);
 

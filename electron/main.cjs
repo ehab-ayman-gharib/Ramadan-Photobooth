@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -52,65 +53,98 @@ ipcMain.handle('get-printers', async () => {
 // Handle Print Requests
 ipcMain.handle('print-image', async (event, { imageSrc, printerName }) => {
     return new Promise((resolve) => {
-        let printWindow = new BrowserWindow({
-            show: false,
-            webPreferences: {
-                nodeIntegration: true,
-                contextIsolation: false
-            }
-        });
+        try {
+            // Write the base64 image to a temp file to avoid data URL length issues
+            const base64Data = imageSrc.replace(/^data:image\/\w+;base64,/, '');
+            const tempImagePath = path.join(os.tmpdir(), `photobooth-print-${Date.now()}.png`);
+            fs.writeFileSync(tempImagePath, Buffer.from(base64Data, 'base64'));
 
-        const htmlContent = `
-            <html>
-                <head>
-                    <style>
-                        @page { 
-                            size: 100mm 148mm; 
-                            margin: 0; 
-                        }
-                        body, html { 
-                            margin: 0; 
-                            padding: 0; 
-                            width: 100mm; 
-                            height: 148mm; 
-                            overflow: hidden; 
-                            background-color: white; 
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                        }
-                        img { 
-                            max-width: 100%; 
-                            max-height: 100%; 
-                            object-fit: contain; 
-                            display: block;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <img src="${imageSrc}" />
-                </body>
-            </html>
-        `;
+            const tempImageUrl = `file:///${tempImagePath.replace(/\\/g, '/')}`;
 
-        printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
-
-        printWindow.webContents.on('did-finish-load', () => {
-            const printOptions = {
-                silent: true,
-                printBackground: true,
-                deviceName: printerName || '',
-                margins: { marginType: 'none' },
-                pageSize: { width: 100000, height: 148000 }, // 100x148mm in microns
-                landscape: false
-            };
-
-            printWindow.webContents.print(printOptions, (success, failureReason) => {
-                console.log('Print result:', success, failureReason);
-                printWindow.close();
-                resolve({ success, failureReason });
+            let printWindow = new BrowserWindow({
+                show: false,
+                width: 400,
+                height: 600,
+                webPreferences: {
+                    nodeIntegration: false,
+                    contextIsolation: true,
+                }
             });
-        });
+
+            const htmlContent = `<!DOCTYPE html>
+<html>
+<head>
+<style>
+    @page { 
+        size: 100mm 148mm portrait; 
+        margin: 0; 
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { 
+        width: 100mm; 
+        height: 148mm; 
+        overflow: hidden;
+        background: white;
+    }
+    img { 
+        width: 100mm;
+        height: 148mm;
+        object-fit: cover;
+        display: block;
+    }
+</style>
+</head>
+<body>
+    <img src="${tempImageUrl}" />
+</body>
+</html>`;
+
+            // Write HTML to a temp file too (avoids data: URL length limits)
+            const tempHtmlPath = path.join(os.tmpdir(), `photobooth-print-${Date.now()}.html`);
+            fs.writeFileSync(tempHtmlPath, htmlContent, 'utf8');
+
+            printWindow.loadFile(tempHtmlPath);
+
+            printWindow.webContents.on('did-finish-load', () => {
+                // Small delay to ensure image is fully rendered
+                setTimeout(() => {
+                    const printOptions = {
+                        silent: true,
+                        printBackground: true,
+                        deviceName: printerName || '',
+                        margins: { marginType: 'none' },
+                        pageSize: { width: 100000, height: 148000 }, // 100x148mm in microns
+                        landscape: false,
+                        copies: 1,
+                    };
+
+                    console.log(`[Print] Sending to printer: "${printerName}"`);
+
+                    printWindow.webContents.print(printOptions, (success, failureReason) => {
+                        console.log('[Print] Result:', success, failureReason);
+                        printWindow.close();
+
+                        // Cleanup temp files
+                        try { fs.unlinkSync(tempImagePath); } catch (e) { }
+                        try { fs.unlinkSync(tempHtmlPath); } catch (e) { }
+
+                        resolve({ success, failureReason: failureReason || null });
+                    });
+                }, 800);
+            });
+
+            printWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+                console.error('[Print] Page failed to load:', errorCode, errorDescription);
+                printWindow.close();
+                try { fs.unlinkSync(tempImagePath); } catch (e) { }
+                try { fs.unlinkSync(tempHtmlPath); } catch (e) { }
+                resolve({ success: false, failureReason: `Page load failed: ${errorDescription}` });
+            });
+
+        } catch (err) {
+            console.error('[Print] Unexpected error:', err);
+            resolve({ success: false, failureReason: err.message });
+        }
     });
 });
 
