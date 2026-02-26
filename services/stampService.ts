@@ -49,47 +49,55 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
             canvas.width = 1200;
             canvas.height = 1800;
 
-            // 1. Draw Main Image - Figma-aligned layout (adjusted for 1200 width):
-            //    Scale to arch inner width, anchor image to top of arch opening.
-            //    Previous 968/1080 ratio is ~89.6%
-            const archSideInset = 62;  // (1200 - 1076) / 2
-            const archTopOffset = 0;
-            const archInnerWidth = 1076;
+            // SELPHY Strategy: 
+            // - NO horizontal margin (Full Bleed left/right)
+            // - 40px vertical margin (Protect top frame + bottom logo from perforation)
+            const vMargin = 40;
+            const safeH = canvas.height - (vMargin * 2); // 1720
 
-            // Scale image so its width fills the arch inner width
+            // 1. Draw Main Image with Clipping
+            //    Arch inner width is 1076px for a 1200px frame
+            const archInnerWidth = 1076;
+            const archSideInset = (canvas.width - archInnerWidth) / 2;
+            const archTopOffset = vMargin;
+
             const imageScale = archInnerWidth / mainImage.width;
             const scaledWidth = archInnerWidth;
             const scaledHeight = mainImage.height * imageScale;
 
-            const drawX = archSideInset;
-            const drawY = archTopOffset;
+            ctx.save();
+            // Create a clipping rectangle matching the frame's opening to avoid "leaks" at the bottom
+            ctx.beginPath();
+            ctx.rect(archSideInset, archTopOffset, archInnerWidth, safeH);
+            ctx.clip();
 
-            ctx.drawImage(mainImage, drawX, drawY, scaledWidth, scaledHeight);
+            ctx.drawImage(mainImage, archSideInset, archTopOffset, scaledWidth, scaledHeight);
+            ctx.restore();
 
-            // 2. Draw Frame - Top Layer
-            ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
+            // 2. Draw Frame - Full Width (1200), but vertically inset (safeH)
+            ctx.drawImage(frameImg, 0, vMargin, canvas.width, safeH);
 
-            // 3. Draw Lantern - Top Left (Fixed "Stamp")
+            // 3. Draw Lantern
             const lanternWidth = 180;
             const lanternHeight = lanternImg.height * (lanternWidth / lanternImg.width);
             const lanternX = 40;
-            const lanternY = -5;
+            const lanternY = vMargin - 5;
 
             ctx.drawImage(lanternImg, lanternX, lanternY, lanternWidth, lanternHeight);
 
-            // 4. Draw Ramadan Kareem Logo - Top Center
+            // 4. Draw Ramadan Kareem Logo
             const logoWidth = 180;
             const logoHeight = logoImg.height * (logoWidth / logoImg.width);
             const logoX = (canvas.width - logoWidth) / 2;
-            const logoY = 130;
+            const logoY = vMargin + 130;
 
             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
-            // 5. Draw Powered By Logo - Bottom Right area "Stamp"
+            // 5. Draw Powered By Logo
             const pWidth = 120;
             const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
-            const pX = canvas.width - pWidth - 170;
-            const pY = canvas.height - pHeight - 35;
+            const pX = canvas.width - pWidth - 160;
+            const pY = vMargin + safeH - pHeight - 35;
 
             ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
 
