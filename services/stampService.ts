@@ -3,7 +3,7 @@ import { EraData } from '../types';
 export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> => {
     return new Promise((resolve) => {
         let assetsLoaded = 0;
-        const totalAssets = 3; // Generated Image + Frame + Logo
+        const totalAssets = 4; // Generated Image + Frame + Logo + Powered By
 
         const onAssetLoad = () => {
             assetsLoaded++;
@@ -33,6 +33,7 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
         const mainImage = createSafeImage(imageSrc, true);
         const frameImg = createSafeImage('./Result-Screen.png', true);
         const logoImg = createSafeImage('./Splash-Screen/Ramadan-Kareem.png', true);
+        const poweredByImg = createSafeImage('./Powered_By_5D.png', true);
 
         const processComposition = () => {
             const canvas = document.createElement('canvas');
@@ -43,12 +44,11 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
                 return;
             }
 
-            // Fixed canvas size for portrait
+            // Fixed canvas size for portrait (1080x1920)
             canvas.width = 1080;
             canvas.height = 1920;
 
             // 1. Draw Main Image - Background Layer
-            // Fill the entire canvas area with the generated photo
             const imageScale = Math.max(canvas.width / mainImage.width, canvas.height / mainImage.height);
             const scaledWidth = mainImage.width * imageScale;
             const scaledHeight = mainImage.height * imageScale;
@@ -61,13 +61,23 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
             // 2. Draw Frame - Top Layer
             ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
 
-            // 3. Draw Logo - Overlay Layer
-            const logoWidth = 210;
+            // 3. Draw Ramadan Kareem Logo - Top Center
+            // Reduced size and moved up to avoid covering the face in the arch
+            const logoWidth = 160;
             const logoHeight = logoImg.height * (logoWidth / logoImg.width);
             const logoX = (canvas.width - logoWidth) / 2;
-            const logoY = 160; // Adjusted for new size to sit elegantly
+            const logoY = 120;
 
             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+
+            // 4. Draw Powered By Logo - Bottom Right area "Stamp"
+            // Reduced size to 110px to match button scale and positioned in the bottom footer area
+            const pWidth = 110;
+            const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
+            const pX = canvas.width - pWidth - 150; // 60px from right
+            const pY = canvas.height - pHeight - 30; // 80px from bottom, matching UI baseline better
+
+            ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
 
             resolve(canvas.toDataURL('image/png', 0.9));
         };

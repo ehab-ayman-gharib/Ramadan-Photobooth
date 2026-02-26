@@ -149,7 +149,7 @@ const App: React.FC = () => {
         <img
           src="/Splash-Screen/Ramadan-Kareem.png"
           alt="Ramadan Kareem"
-          className="absolute top-28 left-1/2 -translate-x-1/2 w-40 md:w-52 z-[150] pointer-events-none drop-shadow-2xl animate-pulse"
+          className="absolute top-28 left-1/2 -translate-x-1/2 w-36 md:w-44 z-[150] pointer-events-none drop-shadow-2xl animate-pulse"
         />
       )}
       <main className="flex-grow relative h-full w-full" key={sessionKey}>

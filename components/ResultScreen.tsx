@@ -252,47 +252,49 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, er
       )}
 
       {/* 3. Action Bar - Positioned to align with the bottom space of Result-Screen.png */}
-      <div className="absolute bottom-10 left-0 right-0 z-20 flex justify-center items-center px-12 gap-12">
+      <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center items-center px-12 gap-8">
 
         {/* PRINT & RESTART (Primary Functional Buttons) */}
-        <div className="flex gap-6">
+        <div className="flex gap-4">
           <button
             onClick={handlePrint}
-            className="flex items-center gap-3 px-10 py-5 bg-white hover:bg-slate-50 text-[#C19E5D] font-black rounded-xl transition-all shadow-xl active:scale-95 group uppercase tracking-widest border-2 border-[#C19E5D]/20 h-fit"
+            className="flex items-center gap-3 px-8 py-4 bg-white hover:bg-slate-50 text-[#C19E5D] font-black rounded-xl transition-all shadow-xl active:scale-95 group uppercase tracking-widest border-2 border-[#C19E5D]/20 h-fit"
           >
-            <Printer size={22} />
+            <Printer size={20} />
             Print
           </button>
           <button
             onClick={onRestart}
-            className="flex items-center gap-3 px-10 py-5 bg-white hover:bg-slate-50 text-[#C19E5D] font-black rounded-xl transition-all shadow-xl active:scale-95 group uppercase tracking-widest border-2 border-[#C19E5D]/20 h-fit"
+            className="flex items-center gap-3 px-8 py-4 bg-white hover:bg-slate-50 text-[#C19E5D] font-black rounded-xl transition-all shadow-xl active:scale-95 group uppercase tracking-widest border-2 border-[#C19E5D]/20 h-fit"
           >
-            <RotateCcw size={22} />
+            <RotateCcw size={20} />
             Restart
           </button>
         </div>
 
         {/* QR Code Section */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-28 h-28 bg-white rounded-xl shadow-2xl p-2.5 flex items-center justify-center border-4 border-[#C19E5D]/30 relative">
-            {isUploading ? (
-              <Loader2 className="animate-spin text-[#C19E5D]" size={36} />
-            ) : qrCodeUrl ? (
-              <img src={qrCodeUrl} alt="QR Code" className="w-full h-full" />
-            ) : (
-              <QrCode className="text-slate-200" size={48} />
-            )}
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-24 h-24 bg-white rounded-xl shadow-2xl p-2 flex items-center justify-center border-4 border-[#C19E5D]/30 relative">
+              {isUploading ? (
+                <Loader2 className="animate-spin text-[#C19E5D]" size={32} />
+              ) : qrCodeUrl ? (
+                <img src={qrCodeUrl} alt="QR Code" className="w-full h-full" />
+              ) : (
+                <QrCode className="text-slate-200" size={40} />
+              )}
 
-            {/* Download Button Overlayed */}
-            <button
-              onClick={handleDownload}
-              className="absolute -top-3 -right-3 p-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-full text-white shadow-xl transition-all active:scale-95"
-              title="Download Artifact"
-            >
-              <Download size={16} />
-            </button>
+              {/* Download Button Overlayed */}
+              <button
+                onClick={handleDownload}
+                className="absolute -top-3 -right-3 p-2 bg-indigo-600 hover:bg-indigo-500 rounded-full text-white shadow-xl transition-all active:scale-95"
+                title="Download Artifact"
+              >
+                <Download size={14} />
+              </button>
+            </div>
+            <span className="text-[9px] text-white font-bold tracking-[0.2em] uppercase bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-md">scan qr</span>
           </div>
-          <span className="text-[10px] text-white font-bold tracking-[0.2em] uppercase bg-black/40 px-3 py-1 rounded-full backdrop-blur-md">scan qr</span>
         </div>
       </div>
 
