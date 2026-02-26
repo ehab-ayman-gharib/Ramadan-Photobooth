@@ -9,9 +9,10 @@ interface CameraCaptureProps {
   onBack: () => void;
   isProcessing?: boolean;
   isSplash?: boolean;
+  hideUI?: boolean;
 }
 
-export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, onBack, isProcessing = false, isSplash = false }) => {
+export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, onBack, isProcessing = false, isSplash = false, hideUI = false }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -211,7 +212,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
       )}
 
       {/* Header */}
-      {!isProcessing && !isSplash && (
+      {!isProcessing && !isSplash && !hideUI && (
         <div className="absolute top-0 left-0 right-0 p-6 z-20 flex items-center justify-between bg-gradient-to-b from-black/60 to-transparent">
           <button
             onClick={onBack}
@@ -226,7 +227,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
       )}
 
       {/* Footer Controls */}
-      {!isProcessing && (
+      {!isProcessing && !hideUI && (
         <div className={`absolute bottom-0 left-0 right-0 p-10 z-20 flex flex-col items-center gap-6 ${isSplash ? 'pb-48 bg-transparent' : 'pb-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent'}`}>
           {/* Hint Text */}
           <p className="text-white text-2xl md:text-3xl font-bold arabic-font drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] animate-pulse-slow">

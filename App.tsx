@@ -4,6 +4,7 @@ import { SplashScreen } from './components/SplashScreen';
 import { CameraCapture } from './components/CameraCapture';
 import { LoadingScreen } from './components/LoadingScreen';
 import { ResultScreen } from './components/ResultScreen';
+import { EraSelection } from './components/EraSelection';
 import { generateHistoricalImage } from './services/geminiService';
 import { applyEraStamp } from './services/stampService';
 import { ERAS } from './constants';
@@ -16,6 +17,8 @@ const App: React.FC = () => {
   const [faceDetectionResult, setFaceDetectionResult] = useState<FaceDetectionResult | null>(null);
   const [sessionKey, setSessionKey] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
+  const [tempCapturedImage, setTempCapturedImage] = useState<string | null>(null);
+  const [tempFaceData, setTempFaceData] = useState<FaceDetectionResult | null>(null);
 
   const handleStart = () => {
     setCurrentScreen(AppScreen.ERA_SELECTION);
@@ -28,9 +31,15 @@ const App: React.FC = () => {
 
   const handleCapture = async (imageSrc: string, faceData: FaceDetectionResult, overrideEra?: EraData) => {
     const activeEra = overrideEra || selectedEra;
-    if (!activeEra) return;
 
-    if (overrideEra) setSelectedEra(overrideEra);
+    // If no era is selected, we move to the selection screen
+    if (!activeEra) {
+      setTempCapturedImage(imageSrc);
+      setTempFaceData(faceData);
+      setCurrentScreen(AppScreen.ERA_SELECTION);
+      return;
+    }
+
     setFaceDetectionResult(faceData);
     setCurrentScreen(AppScreen.PROCESSING);
 
@@ -81,8 +90,10 @@ const App: React.FC = () => {
     setGeneratedPrompt('');
     setSelectedEra(null);
     setFaceDetectionResult(null);
+    setTempCapturedImage(null);
+    setTempFaceData(null);
     setSessionKey(prev => prev + 1);
-    setCurrentScreen(AppScreen.ERA_SELECTION);
+    setCurrentScreen(AppScreen.SPLASH); // Go back to splash (camera)
   };
 
   const handleUpdateImage = (newImage: string) => {
@@ -94,8 +105,17 @@ const App: React.FC = () => {
       case AppScreen.SPLASH:
         return <SplashScreen onStart={handleStart} onSelectEra={handleEraSelect} isMuted={isMuted} setIsMuted={setIsMuted} onCapture={handleCapture} />;
       case AppScreen.ERA_SELECTION:
-        // This screen is now merged with SPLASH
-        return <SplashScreen onStart={handleStart} onSelectEra={handleEraSelect} isMuted={isMuted} setIsMuted={setIsMuted} onCapture={handleCapture} />;
+        return (
+          tempCapturedImage ? (
+            <EraSelection
+              capturedImage={tempCapturedImage}
+              onSelect={(era) => {
+                setSelectedEra(era);
+                if (tempFaceData) handleCapture(tempCapturedImage, tempFaceData, era);
+              }}
+            />
+          ) : <SplashScreen onStart={handleStart} onSelectEra={handleEraSelect} isMuted={isMuted} setIsMuted={setIsMuted} onCapture={handleCapture} />
+        );
       case AppScreen.CAMERA:
         return <CameraCapture era={selectedEra} onCapture={handleCapture} onBack={() => setCurrentScreen(AppScreen.ERA_SELECTION)} />;
       case AppScreen.PROCESSING:

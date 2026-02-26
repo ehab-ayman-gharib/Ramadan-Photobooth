@@ -151,7 +151,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
           <CameraCapture
             era={ERAS.find(e => e.id === EraId.SNAP_A_MEMORY) || ERAS[0]}
             onCapture={(img, face) => {
-              onCapture(img, face, ERAS.find(e => e.id === EraId.SNAP_A_MEMORY) || ERAS[0]);
+              onCapture?.(img, face);
             }}
             onBack={() => { }}
             isSplash={true}

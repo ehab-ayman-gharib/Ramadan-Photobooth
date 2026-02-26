@@ -25,8 +25,10 @@ export interface Scenery {
 export interface EraData {
   id: EraId;
   name: string;
+  arabicName: string;
   description: string;
   previewImage: string;
+  icon: string;
   scenery: Scenery[];
   frames: string[];
   characters?: string[];

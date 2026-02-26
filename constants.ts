@@ -12,8 +12,10 @@ export const ERAS: EraData[] = [
   {
     id: EraId.LANTERN_MAKER,
     name: "Ramadan Lantern Maker",
+    arabicName: "صانع الفوانيس",
     description: "صانع الفوانيس - The traditional craftsman who creates beautiful Ramadan lanterns",
     previewImage: "./Ramadan/Lantern-Maker-Preview.png",
+    icon: "./Eras-Icons/Lantern-Maker.png",
     scenery: [
       {
         prompt: "A warm, atmospheric workshop filled with colorful handmade Ramadan lanterns (Fanous). The subject stands among hanging lanterns of various sizes, with warm golden light filtering through stained glass. Traditional tools and brass decorations visible in the background. Authentic Egyptian craftsmanship atmosphere.",
@@ -32,8 +34,10 @@ export const ERAS: EraData[] = [
   {
     id: EraId.RAMADAN_DRUMMER,
     name: "The Ramadan Drummer",
+    arabicName: "المسحراتي",
     description: "المسحراتي - The traditional dawn drummer who wakes people for Suhoor",
     previewImage: "./Ramadan/Drummer-Preview.png",
+    icon: "./Eras-Icons/Ramadan-Drummer.png",
     scenery: [
       {
         prompt: "A magical pre-dawn scene in a traditional Egyptian neighborhood. The subject stands in a narrow alley with old buildings, holding a traditional drum (Tabla). Soft lantern light illuminates the scene. The atmosphere is mystical and peaceful, capturing the essence of Ramadan nights.",
@@ -52,8 +56,10 @@ export const ERAS: EraData[] = [
   {
     id: EraId.KUNAFA_MAKER,
     name: "Kunafa Dessert Maker",
+    arabicName: "حلواني الكنافة",
     description: "حلواني الكنافة - The master dessert chef specializing in traditional Ramadan sweets",
     previewImage: "./Ramadan/Kunafa-Preview.png",
+    icon: "./Eras-Icons/Kunafa-Dessert-Maker.png",
     scenery: [
       {
         prompt: "A bustling traditional Egyptian sweet shop (Halawany). The subject stands behind a display of golden Kunafa, Qatayef, and other Ramadan desserts. Copper trays gleam, and the atmosphere is warm and inviting. Decorative tiles and traditional architecture visible in the background.",
@@ -72,8 +78,10 @@ export const ERAS: EraData[] = [
   {
     id: EraId.EGYPTIAN_LADY,
     name: "The Egyptian Lady",
+    arabicName: "الهانم المصرية",
     description: "الهانم المصرية - The elegant Egyptian lady in traditional festive attire",
     previewImage: "./Ramadan/Lady-Preview.png",
+    icon: "./Eras-Icons/The-Egyptian-Lady.png",
     scenery: [
       {
         prompt: "An elegant traditional Egyptian home interior during Ramadan. The subject sits or stands in a beautifully decorated room with traditional furniture, colorful cushions, and Ramadan decorations. Ornate mashrabiya screens filter soft light. The atmosphere is refined and festive.",
@@ -92,8 +100,10 @@ export const ERAS: EraData[] = [
   {
     id: EraId.CANNON_OFFICER,
     name: "The Iftar Cannon Officer",
+    arabicName: "ضابط المدفع",
     description: "ضابط المدفع - The officer who fires the traditional Ramadan cannon at sunset",
     previewImage: "./Ramadan/Cannon-Preview.png",
+    icon: "./Eras-Icons/Iftar-Cannon-Officer.png",
     scenery: [
       {
         prompt: "The Cairo Citadel at sunset during Ramadan. The subject stands near a historic ceremonial cannon with the Cairo skyline in the background. The sky is painted in warm sunset colors (orange, pink, purple). The atmosphere is majestic and ceremonial, capturing the moment before Iftar.",
@@ -112,8 +122,10 @@ export const ERAS: EraData[] = [
   {
     id: EraId.DESERT_WANDERER,
     name: "The Desert Wanderer",
+    arabicName: "رحالة الصحراء",
     description: "رحالة الصحراء - The traveler experiencing Ramadan in the Egyptian desert",
     previewImage: "./Ramadan/Desert-Preview.png",
+    icon: "./Eras-Icons/Desert-Wanderer.png",
     scenery: [
       {
         prompt: "A serene Egyptian desert landscape at dusk during Ramadan. The subject stands near a traditional Bedouin tent with colorful rugs and cushions. Sand dunes and palm trees in the background. The sky transitions from day to night with the first stars appearing. A peaceful, spiritual atmosphere.",
@@ -132,8 +144,10 @@ export const ERAS: EraData[] = [
   {
     id: EraId.SNAP_A_MEMORY,
     name: "Snap a Memory",
+    arabicName: "صورة عادية",
     description: "التقط ذكرى - Simply snap a photo with our beautiful Ramadan frame",
     previewImage: "./Ramadan/Snap-Preview.png",
+    icon: "./Eras-Icons/Snap-A-Memory.png",
     scenery: [],
     frames: ["./Frames/Ramadan/1.png"],
     isAiEnabled: false
