@@ -3,7 +3,7 @@ import { EraData } from '../types';
 export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> => {
     return new Promise((resolve) => {
         let assetsLoaded = 0;
-        const totalAssets = 4; // Generated Image + Frame + Logo + Powered By
+        const totalAssets = 5; // Generated Image + Frame + Logo + Powered By + Lantern
 
         const onAssetLoad = () => {
             assetsLoaded++;
@@ -34,6 +34,7 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
         const frameImg = createSafeImage('./Result-Screen.png', true);
         const logoImg = createSafeImage('./Splash-Screen/Ramadan-Kareem.png', true);
         const poweredByImg = createSafeImage('./Powered_By_5D.png', true);
+        const lanternImg = createSafeImage('./Lantern.png', true);
 
         const processComposition = () => {
             const canvas = document.createElement('canvas');
@@ -61,8 +62,15 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
             // 2. Draw Frame - Top Layer
             ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
 
-            // 3. Draw Ramadan Kareem Logo - Top Center
-            // Reduced size and moved up to avoid covering the face in the arch
+            // 3. Draw Lantern - Top Left (Fixed "Stamp")
+            const lanternWidth = 160;
+            const lanternHeight = lanternImg.height * (lanternWidth / lanternImg.width);
+            const lanternX = 35;
+            const lanternY = -5;
+
+            ctx.drawImage(lanternImg, lanternX, lanternY, lanternWidth, lanternHeight);
+
+            // 4. Draw Ramadan Kareem Logo - Top Center
             const logoWidth = 160;
             const logoHeight = logoImg.height * (logoWidth / logoImg.width);
             const logoX = (canvas.width - logoWidth) / 2;
@@ -70,12 +78,11 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
 
             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
-            // 4. Draw Powered By Logo - Bottom Right area "Stamp"
-            // Reduced size to 110px to match button scale and positioned in the bottom footer area
+            // 5. Draw Powered By Logo - Bottom Right area "Stamp"
             const pWidth = 110;
             const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
-            const pX = canvas.width - pWidth - 150; // 60px from right
-            const pY = canvas.height - pHeight - 30; // 80px from bottom, matching UI baseline better
+            const pX = canvas.width - pWidth - 150;
+            const pY = canvas.height - pHeight - 30;
 
             ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
 
