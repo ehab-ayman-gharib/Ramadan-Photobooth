@@ -84,12 +84,12 @@ ipcMain.handle('print-image', async (event, { imageSrc, printerName }) => {
         width: 100mm; 
         height: 148mm; 
         overflow: hidden;
-        background: white;
+        background: black;
     }
     img { 
         width: 100mm;
         height: 148mm;
-        object-fit: cover;
+        object-fit: cover; /* Back to cover now that aspect ratios match perfectly */
         display: block;
     }
 </style>

@@ -45,24 +45,24 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
                 return;
             }
 
-            // Fixed canvas size for portrait (1080x1920)
-            canvas.width = 1080;
-            canvas.height = 1920;
+            // Fixed canvas size for 4x6 portrait (1200x1800)
+            canvas.width = 1200;
+            canvas.height = 1800;
 
-            // 1. Draw Main Image - Figma-aligned layout:
+            // 1. Draw Main Image - Figma-aligned layout (adjusted for 1200 width):
             //    Scale to arch inner width, anchor image to top of arch opening.
-            //    Matches Figma spec: image width 968px in 1080 canvas, top-anchored.
-            const archSideInset = 56;  // ~56px each side (1080 - 968) / 2
-            const archTopOffset = 0;   // anchored to very top of canvas
-            const archInnerWidth = canvas.width - archSideInset * 2; // 968px
+            //    Previous 968/1080 ratio is ~89.6%
+            const archSideInset = 62;  // (1200 - 1076) / 2
+            const archTopOffset = 0;
+            const archInnerWidth = 1076;
 
             // Scale image so its width fills the arch inner width
             const imageScale = archInnerWidth / mainImage.width;
             const scaledWidth = archInnerWidth;
             const scaledHeight = mainImage.height * imageScale;
 
-            const drawX = archSideInset; // aligned to arch left edge
-            const drawY = archTopOffset; // anchored to top of arch opening
+            const drawX = archSideInset;
+            const drawY = archTopOffset;
 
             ctx.drawImage(mainImage, drawX, drawY, scaledWidth, scaledHeight);
 
@@ -70,26 +70,26 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
             ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
 
             // 3. Draw Lantern - Top Left (Fixed "Stamp")
-            const lanternWidth = 160;
+            const lanternWidth = 180;
             const lanternHeight = lanternImg.height * (lanternWidth / lanternImg.width);
-            const lanternX = 35;
+            const lanternX = 40;
             const lanternY = -5;
 
             ctx.drawImage(lanternImg, lanternX, lanternY, lanternWidth, lanternHeight);
 
             // 4. Draw Ramadan Kareem Logo - Top Center
-            const logoWidth = 160;
+            const logoWidth = 180;
             const logoHeight = logoImg.height * (logoWidth / logoImg.width);
             const logoX = (canvas.width - logoWidth) / 2;
-            const logoY = 120;
+            const logoY = 130;
 
             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
             // 5. Draw Powered By Logo - Bottom Right area "Stamp"
-            const pWidth = 110;
+            const pWidth = 120;
             const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
-            const pX = canvas.width - pWidth - 150;
-            const pY = canvas.height - pHeight - 30;
+            const pX = canvas.width - pWidth - 170;
+            const pY = canvas.height - pHeight - 35;
 
             ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
 

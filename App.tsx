@@ -142,14 +142,14 @@ const App: React.FC = () => {
     <div className="h-[100dvh] w-screen bg-slate-900 text-slate-100 flex flex-col overflow-hidden relative">
       {currentScreen !== AppScreen.RESULT && (
         <img
-          src="/Lantern.png"
+          src="./Lantern.png"
           alt="Ramadan Lantern"
           className="absolute -top-2 left-6 w-32 md:w-40 z-[150] pointer-events-none animate-swing origin-top drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]"
         />
       )}
       {currentScreen !== AppScreen.RESULT && (
         <img
-          src="/Splash-Screen/Ramadan-Kareem.png"
+          src="./Splash-Screen/Ramadan-Kareem.png"
           alt="Ramadan Kareem"
           className="absolute top-28 left-1/2 -translate-x-1/2 w-36 md:w-44 z-[150] pointer-events-none drop-shadow-2xl animate-pulse"
         />

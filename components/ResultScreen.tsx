@@ -201,14 +201,26 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, er
   };
 
   return (
-    <div className="h-full w-full relative overflow-hidden bg-black flex flex-col items-center justify-center">
-      {/* 1. Main Framed Image Display - Full Screen */}
-      <div className="absolute inset-0 z-0">
+    <div className="h-full w-full relative overflow-hidden bg-slate-950 flex flex-col items-center justify-center">
+      {/* 1. Background Layer */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <img
-          src={imageSrc}
-          alt="Final Composition"
-          className="w-full h-full object-fill animate-scale-in"
+          src="./Backgrounds/Generic-Background.jpg"
+          alt="Background"
+          className="w-full h-full object-cover brightness-[0.85]"
         />
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
+      </div>
+
+      {/* 2. Main Framed Image Display - Centered 2:3 */}
+      <div className="relative z-10 w-full max-w-[90vw] h-[75vh] flex items-center justify-center mb-24 px-4 animate-scale-in">
+        <div className="h-full aspect-[2/3] relative shadow-[0_20px_80px_rgba(0,0,0,0.8)] rounded-lg overflow-hidden border border-white/10">
+          <img
+            src={imageSrc}
+            alt="Final Composition"
+            className="w-full h-full object-contain"
+          />
+        </div>
       </div>
 
       {/* Printing Feedback Overlay */}
