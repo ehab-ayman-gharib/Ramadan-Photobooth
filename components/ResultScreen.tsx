@@ -202,18 +202,19 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, er
 
   return (
     <div className="h-full w-full relative overflow-hidden bg-black flex flex-col items-center justify-center">
-      {/* 1. Background Image */}
-      <img
-        src="./Result-Screen.jpg"
-        alt="Background"
-        className="absolute inset-0 w-full h-full object-cover z-0 blur-sm"
-      />
-      <div className="absolute inset-0 bg-black/10 z-[1]" />
+      {/* 1. Main Framed Image Display - Full Screen */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src={imageSrc}
+          alt="Final Composition"
+          className="w-full h-full object-fill animate-scale-in"
+        />
+      </div>
 
       {/* Printing Feedback Overlay */}
       {printStatus !== 'idle' && (
         <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[110] flex flex-col items-center justify-center animate-scale-in">
-          <div className="bg-black/80 backdrop-blur-xl border border-yellow-500/30 p-12 rounded-full flex flex-col items-center gap-6 shadow-[0_0_100px_rgba(0,0,0,0.9)] min-w-[300px]">
+          <div className="bg-black/90 backdrop-blur-xl border border-yellow-500/30 p-12 rounded-full flex flex-col items-center gap-6 shadow-[0_0_100px_rgba(0,0,0,0.9)] min-w-[300px]">
             {printStatus === 'printing' && (
               <>
                 <div className="relative">
@@ -222,7 +223,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, er
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-2xl font-black text-white uppercase tracking-widest">Printing...</span>
-                  <span className="text-xs text-yellow-500/70 font-bold uppercase tracking-widest">Your artifact is being prepared</span>
+                  <span className="text-xs text-yellow-500/70 font-bold uppercase tracking-widest">Your memory is on its way</span>
                 </div>
               </>
             )}
@@ -250,143 +251,81 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, er
         </div>
       )}
 
-      {/* Printer Settings Overlay */}
+      {/* 3. Action Bar - Positioned to align with the bottom space of Result-Screen.png */}
+      <div className="absolute bottom-10 left-0 right-0 z-20 flex justify-center items-center px-12 gap-12">
+
+        {/* PRINT & RESTART (Primary Functional Buttons) */}
+        <div className="flex gap-6">
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-3 px-10 py-5 bg-white hover:bg-slate-50 text-[#C19E5D] font-black rounded-xl transition-all shadow-xl active:scale-95 group uppercase tracking-widest border-2 border-[#C19E5D]/20 h-fit"
+          >
+            <Printer size={22} />
+            Print
+          </button>
+          <button
+            onClick={onRestart}
+            className="flex items-center gap-3 px-10 py-5 bg-white hover:bg-slate-50 text-[#C19E5D] font-black rounded-xl transition-all shadow-xl active:scale-95 group uppercase tracking-widest border-2 border-[#C19E5D]/20 h-fit"
+          >
+            <RotateCcw size={22} />
+            Restart
+          </button>
+        </div>
+
+        {/* QR Code Section */}
+        <div className="flex flex-col items-center gap-2">
+          <div className="w-28 h-28 bg-white rounded-xl shadow-2xl p-2.5 flex items-center justify-center border-4 border-[#C19E5D]/30 relative">
+            {isUploading ? (
+              <Loader2 className="animate-spin text-[#C19E5D]" size={36} />
+            ) : qrCodeUrl ? (
+              <img src={qrCodeUrl} alt="QR Code" className="w-full h-full" />
+            ) : (
+              <QrCode className="text-slate-200" size={48} />
+            )}
+
+            {/* Download Button Overlayed */}
+            <button
+              onClick={handleDownload}
+              className="absolute -top-3 -right-3 p-2.5 bg-indigo-600 hover:bg-indigo-500 rounded-full text-white shadow-xl transition-all active:scale-95"
+              title="Download Artifact"
+            >
+              <Download size={16} />
+            </button>
+          </div>
+          <span className="text-[10px] text-white font-bold tracking-[0.2em] uppercase bg-black/40 px-3 py-1 rounded-full backdrop-blur-md">scan qr</span>
+        </div>
+      </div>
+
+      {/* Printer Settings Overlay (Rest omitted for brevity but same logic) */}
       {showPrinterSettings && (
         <div className="absolute inset-0 z-[120] bg-black/80 backdrop-blur-md flex items-center justify-center p-6">
+          {/* ... printer settings content same as before ... */}
           <div className="bg-slate-900 border border-yellow-500/30 p-8 rounded-3xl w-full max-w-md shadow-2xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-yellow-500">Printer Settings</h2>
-              <button
-                onClick={() => setShowPrinterSettings(false)}
-                className="text-slate-400 hover:text-white"
-              >✕</button>
+              <button onClick={() => setShowPrinterSettings(false)} className="text-slate-400">✕</button>
             </div>
-
             <div className="space-y-4">
-              <label className="block text-xs uppercase tracking-widest text-slate-400">Select Target Printer</label>
               {printers.length > 0 ? (
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                  {printers.map((p) => (
-                    <button
-                      key={p.name}
-                      onClick={() => handlePrinterChange(p.name)}
-                      className={`w-full text-left px-4 py-3 rounded-xl border transition-all ${selectedPrinter === p.name
-                        ? 'border-yellow-500 bg-yellow-500/10 text-white'
-                        : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
-                        }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="font-medium truncate mr-2">{p.name}</span>
-                        {p.isDefault && <span className="text-[10px] bg-slate-700 px-2 py-0.5 rounded uppercase">Default</span>}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-4 text-slate-500 italic">No printers found. (Requires Electron)</div>
-              )}
+                printers.map(p => (
+                  <button key={p.name} onClick={() => handlePrinterChange(p.name)} className={`w-full text-left p-4 rounded-xl border ${selectedPrinter === p.name ? 'border-yellow-500 bg-yellow-500/10' : 'border-white/10'}`}>
+                    {p.name} {p.isDefault && "(Default)"}
+                  </button>
+                ))
+              ) : <p className="text-slate-500">No printers found</p>}
             </div>
-
-            <button
-              onClick={() => setShowPrinterSettings(false)}
-              className="w-full mt-8 py-4 bg-yellow-600 hover:bg-yellow-500 text-black font-bold rounded-xl transition-all"
-            >
-              Confirm Selection
-            </button>
+            <button onClick={() => setShowPrinterSettings(false)} className="w-full mt-8 py-4 bg-yellow-600 text-black font-bold rounded-xl">Close</button>
           </div>
         </div>
       )}
 
-      {/* 2. Content Layer */}
-      <div className="relative z-10 w-full h-full flex flex-col items-center justify-between py-6 px-4">
-
-        {/* Header with Settings */}
-        <div className="w-full flex justify-end px-4 pt-2">
-          {((window as any).require || navigator.userAgent.indexOf('Electron') !== -1) && (
-            <button
-              onClick={() => setShowPrinterSettings(true)}
-              className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-slate-200 transition-all border border-white/20 active:scale-95 group shadow-xl"
-              title="Printer Settings"
-            >
-              <Printer size={20} className="group-hover:rotate-12 transition-transform" />
-            </button>
-          )}
-        </div>
-
-        {/* Main Generated Image Display */}
-        <div className="relative w-[98%] md:w-[85%] lg:w-[65%] h-[78%] flex items-center justify-center animate-scale-in">
-          <div className="absolute inset-0 bg-yellow-600/5 blur-1xl rounded-full" />
-          <div className="relative w-full h-full rounded-xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.8)] bg-black/40">
-            <img
-              src={imageSrc}
-              alt="Generated Portrait"
-              className="w-full h-full object-contain"
-            />
-          </div>
-        </div>
-
-        {/* Footer Actions & QR */}
-        <div className="w-full flex justify-center pb-2">
-          <div className="flex items-end justify-center gap-8 w-full max-w-4xl px-4">
-
-            {/* Download/Share Actions */}
-            <div className="flex flex-col gap-3 animate-slide-in-bottom" style={{ animationDelay: '0.4s' }}>
-              <div className="flex gap-3">
-                <button
-                  onClick={handleDownload}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-yellow-600 hover:bg-yellow-500 text-black font-bold rounded-xl transition-all shadow-lg active:scale-95 group"
-                >
-                  <Download size={18} className="group-hover:animate-bounce" />
-                  <span className="text-xs uppercase tracking-wider">Download</span>
-                </button>
-
-                <button
-                  onClick={handlePrint}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg active:scale-95 group"
-                >
-                  <Printer size={18} className="group-hover:rotate-12 transition-transform" />
-                  <span className="text-xs uppercase tracking-wider">Print Photo</span>
-                </button>
-              </div>
-
-              <button
-                onClick={onRestart}
-                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all active:scale-95"
-              >
-                <RotateCcw size={16} />
-                <span className="text-xs uppercase tracking-wider">New Adventure</span>
-              </button>
-            </div>
-
-            {/* QR Code Section */}
-            <div className="flex flex-col items-center gap-2 animate-slide-in-bottom" style={{ animationDelay: '0.6s' }}>
-              <div className="w-24 h-24 bg-white rounded-xl shadow-2xl p-1.5 relative group flex items-center justify-center border-2 border-yellow-600/50">
-                {isUploading ? (
-                  <div className="flex flex-col items-center gap-1">
-                    <Loader2 className="animate-spin text-yellow-600" size={24} />
-                    <span className="text-[8px] text-slate-600 font-bold uppercase">Uploading</span>
-                  </div>
-                ) : qrCodeUrl ? (
-                  <img src={qrCodeUrl} alt="QR Code" className="w-full h-full object-contain" />
-                ) : (
-                  <QrCode className="text-slate-400 opacity-20" size={32} />
-                )}
-              </div>
-              <span className="text-[9px] text-yellow-500 font-black tracking-widest uppercase bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-md text-center block">Scan to Share</span>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
       <style>{`
         @keyframes scale-in {
-          from { transform: scale(0.9); opacity: 0; }
+          from { transform: scale(0.95); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
         }
         .animate-scale-in {
-          animation: scale-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: scale-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
     </div>

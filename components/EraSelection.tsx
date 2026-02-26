@@ -41,29 +41,13 @@ export const EraSelection: React.FC<EraSelectionProps> = ({ onSelect, capturedIm
 
             <div className="relative z-10 w-full h-full flex flex-col items-center justify-start animate-fade-in px-8">
 
-                {/* Title Section - Matched to Splash */}
-                <div className="absolute top-20 left-0 w-full z-10 flex flex-col items-center">
-                    <div className="relative w-4/5 max-w-lg">
-                        {/* Glow effect behind title */}
-                        <div className="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full animate-pulse"></div>
-
-                        {/* Main Title Container */}
-                        <div className="relative flex flex-col items-center gap-3 px-8 py-6">
-                            <img
-                                src="./Splash-Screen/Ramadan-Kareem.png"
-                                alt="Ramadan Kareem"
-                                className="w-2/5 h-auto object-contain drop-shadow-2xl animate-pulse"
-                                draggable={false}
-                            />
-                        </div>
-                    </div>
-                </div>
+                {/* Title Section Removed - Handled globally in App.tsx */}
 
                 {/* Icons Area - Adjusted margin to stay below logo */}
-                <div className="relative w-full max-w-5xl flex flex-col items-center justify-center flex-grow mt-32">
+                <div className="relative w-full max-w-5xl flex flex-col items-center justify-center flex-grow mt-40">
 
                     {/* Two Row Grid Layout */}
-                    <div className="flex flex-col items-center gap-6 md:gap-8 w-full h-full justify-center">
+                    <div className="flex flex-col items-center gap-6 md:gap-10 w-full justify-center">
 
                         {/* Top Row: 4 Items */}
                         <div className="flex flex-wrap justify-center gap-6 md:gap-8">
@@ -115,12 +99,10 @@ const EraButton: React.FC<EraButtonProps> = ({ era, onClick, isCamera }) => {
             className="flex flex-col items-center group outline-none"
         >
             <div className={`
-                relative w-28 h-28 md:w-36 md:h-36 rounded-full 
+                relative w-28 h-28 md:w-36 md:h-36 
                 transition-all duration-300 group-hover:scale-110 
                 active:scale-95
-                group-hover:ring-4 group-hover:ring-[#C5A059]
-                group-hover:shadow-[0_0_30px_rgba(197,160,89,0.8)]
-                overflow-hidden
+                group-hover:drop-shadow-[0_0_25px_rgba(197,160,89,0.5)]
             `}>
                 <img
                     src={era.icon}
@@ -129,7 +111,7 @@ const EraButton: React.FC<EraButtonProps> = ({ era, onClick, isCamera }) => {
                 />
 
                 {/* Shiny overlay effect */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
             </div>
         </button>
     );

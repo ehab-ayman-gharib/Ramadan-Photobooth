@@ -139,7 +139,19 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-[100dvh] w-screen bg-slate-900 text-slate-100 flex flex-col overflow-hidden">
+    <div className="h-[100dvh] w-screen bg-slate-900 text-slate-100 flex flex-col overflow-hidden relative">
+      <img
+        src="/Lantern.png"
+        alt="Ramadan Lantern"
+        className="absolute -top-2 left-6 w-32 md:w-40 z-[150] pointer-events-none animate-swing origin-top drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]"
+      />
+      {currentScreen !== AppScreen.RESULT && (
+        <img
+          src="/Splash-Screen/Ramadan-Kareem.png"
+          alt="Ramadan Kareem"
+          className="absolute top-28 left-1/2 -translate-x-1/2 w-40 md:w-52 z-[150] pointer-events-none drop-shadow-2xl animate-pulse"
+        />
+      )}
       <main className="flex-grow relative h-full w-full" key={sessionKey}>
         {renderScreen()}
         {currentScreen === AppScreen.PROCESSING && <LoadingScreen />}

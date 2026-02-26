@@ -223,6 +223,25 @@
     .animate-progress-loading {
       animation: progress-loading 2s ease-in-out infinite;
     }
+
+    @keyframes swinging {
+      0% {
+        transform: rotate(5deg);
+      }
+
+      50% {
+        transform: rotate(-5deg);
+      }
+
+      100% {
+        transform: rotate(5deg);
+      }
+    }
+
+    .animate-swing {
+      transform-origin: top center;
+      animation: swinging 3.5s ease-in-out infinite;
+    }
   </style>
 </head>
 

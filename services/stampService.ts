@@ -2,10 +2,8 @@ import { EraData } from '../types';
 
 export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> => {
     return new Promise((resolve) => {
-        const hasFrame = era.frames && era.frames.length > 0;
-
         let assetsLoaded = 0;
-        const totalAssets = 2 + (hasFrame ? 1 : 0); // Main Image + Background + Frame (if exists)
+        const totalAssets = 3; // Generated Image + Frame + Logo
 
         const onAssetLoad = () => {
             assetsLoaded++;
@@ -33,13 +31,8 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
         };
 
         const mainImage = createSafeImage(imageSrc, true);
-
-        // Background selection - using generic background for all Ramadan eras
-        const backgroundPath = './Backgrounds/Generic-Background.jpg';
-        const backgroundImg = createSafeImage(backgroundPath, true);
-
-        // Frame selection (top layer)
-        const frameImg = hasFrame ? createSafeImage(era.frames[0]) : null;
+        const frameImg = createSafeImage('./Result-Screen.png', true);
+        const logoImg = createSafeImage('./Splash-Screen/Ramadan-Kareem.png', true);
 
         const processComposition = () => {
             const canvas = document.createElement('canvas');
@@ -50,58 +43,31 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
                 return;
             }
 
-            // Fixed canvas size based on background requirements: 1080 x 1920
+            // Fixed canvas size for portrait
             canvas.width = 1080;
             canvas.height = 1920;
 
-            // 1. Draw Background - BASE layer
-            ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+            // 1. Draw Main Image - Background Layer
+            // Fill the entire canvas area with the generated photo
+            const imageScale = Math.max(canvas.width / mainImage.width, canvas.height / mainImage.height);
+            const scaledWidth = mainImage.width * imageScale;
+            const scaledHeight = mainImage.height * imageScale;
 
-            // 2. Draw Main Image - MIDDLE layer
-            // The AI-generated image should fit INSIDE the frame's transparent center
-            // Make it smaller than the frame so the decorative border extends beyond the photo
-            const imageDisplayWidth = canvas.width * 0.75;  // Image at 75% of canvas
-            const imageDisplayHeight = canvas.height * 0.75;
+            const drawX = (canvas.width - scaledWidth) / 2;
+            const drawY = (canvas.height - scaledHeight) / 2;
 
-            // Calculate scaling to fit the image within the display area while maintaining aspect ratio
-            const imageScale = Math.min(imageDisplayWidth / mainImage.width, imageDisplayHeight / mainImage.height);
-            const scaledImageWidth = mainImage.width * imageScale;
-            const scaledImageHeight = mainImage.height * imageScale;
+            ctx.drawImage(mainImage, drawX, drawY, scaledWidth, scaledHeight);
 
-            // Center the image on the canvas
-            const imageX = (canvas.width - scaledImageWidth) / 2;
-            const imageY = (canvas.height - scaledImageHeight) / 2;
+            // 2. Draw Frame - Top Layer
+            ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
 
-            ctx.drawImage(mainImage, imageX, imageY, scaledImageWidth, scaledImageHeight);
+            // 3. Draw Logo - Overlay Layer
+            const logoWidth = 210;
+            const logoHeight = logoImg.height * (logoWidth / logoImg.width);
+            const logoX = (canvas.width - logoWidth) / 2;
+            const logoY = 160; // Adjusted for new size to sit elegantly
 
-            // 3. Draw Frame - TOP layer (larger than the image to create border effect)
-            if (hasFrame && frameImg) {
-                // Frame is drawn LARGER than the image (92% vs 85%)
-                // This creates the effect of the photo sitting inside the decorative frame
-                const frameDisplayWidth = canvas.width * 0.92;  // Frame at 92% of canvas
-                const frameDisplayHeight = canvas.height * 0.92;
-
-                const frameScale = Math.min(frameDisplayWidth / frameImg.width, frameDisplayHeight / frameImg.height);
-                const scaledFrameWidth = frameImg.width * frameScale;
-                const scaledFrameHeight = frameImg.height * frameScale;
-
-                const frameX = (canvas.width - scaledFrameWidth) / 2;
-                const frameY = (canvas.height - scaledFrameHeight) / 2;
-
-                ctx.drawImage(frameImg, frameX, frameY, scaledFrameWidth, scaledFrameHeight);
-            }
-
-            // Stamping/Branding logic remains commented out per user request
-            /*
-            const logoImage = createSafeImage(['./Logos/Gold-Logo.png', './Logos/Original-Logo.png'][Math.floor(Math.random() * 2)]);
-            const logoInternalPadding = targetWidth * 0.05;
-            const logoScale = 0.385; 
-            const logoWidth = targetWidth * logoScale;
-            const logoHeight = logoWidth * (logoImage.height / logoImage.width);
-            const logoX = targetX + logoInternalPadding;
-            const logoY = targetY + logoInternalPadding;
-            ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
-            */
+            ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
             resolve(canvas.toDataURL('image/png', 0.9));
         };
