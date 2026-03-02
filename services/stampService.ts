@@ -51,15 +51,17 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
 
             // SELPHY Strategy: 
             // - NO horizontal margin (Full Bleed left/right)
-            // - 40px vertical margin (Protect top frame + bottom logo from perforation)
-            const vMargin = 40;
-            const safeH = canvas.height - (vMargin * 2); // 1720
+            // - Top Margin: 120px (Increase to clear printer crop @ top)
+            // - Bottom Margin: 40px (User confirmed this is perfect)
+            const topMargin = 90;
+            const bottomMargin = 40;
+            const safeH = 1800 - topMargin - bottomMargin; // 1640
 
             // 1. Draw Main Image with Clipping
             //    Arch inner width is 1076px for a 1200px frame
             const archInnerWidth = 1076;
             const archSideInset = (canvas.width - archInnerWidth) / 2;
-            const archTopOffset = vMargin;
+            const archTopOffset = topMargin;
 
             const imageScale = archInnerWidth / mainImage.width;
             const scaledWidth = archInnerWidth;
@@ -74,14 +76,14 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
             ctx.drawImage(mainImage, archSideInset, archTopOffset, scaledWidth, scaledHeight);
             ctx.restore();
 
-            // 2. Draw Frame - Full Width (1200), but vertically inset (safeH)
-            ctx.drawImage(frameImg, 0, vMargin, canvas.width, safeH);
+            // 2. Draw Frame - Shifted down
+            ctx.drawImage(frameImg, 0, topMargin, canvas.width, safeH);
 
             // 3. Draw Lantern
             const lanternWidth = 180;
             const lanternHeight = lanternImg.height * (lanternWidth / lanternImg.width);
             const lanternX = 40;
-            const lanternY = vMargin - 5;
+            const lanternY = topMargin - 5;
 
             ctx.drawImage(lanternImg, lanternX, lanternY, lanternWidth, lanternHeight);
 
@@ -89,7 +91,7 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
             const logoWidth = 180;
             const logoHeight = logoImg.height * (logoWidth / logoImg.width);
             const logoX = (canvas.width - logoWidth) / 2;
-            const logoY = vMargin + 130;
+            const logoY = topMargin + 130;
 
             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
@@ -97,7 +99,7 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
             const pWidth = 120;
             const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
             const pX = canvas.width - pWidth - 160;
-            const pY = vMargin + safeH - pHeight - 35;
+            const pY = topMargin + safeH - pHeight - 25;
 
             ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
 
