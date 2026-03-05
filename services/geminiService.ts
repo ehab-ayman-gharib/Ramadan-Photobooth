@@ -172,7 +172,8 @@ export const generateHistoricalImage = async (
     temperature: 1,
     // @ts-ignore
     imageConfig: {
-      aspectRatio: "9:16"
+      aspectRatio: "9:16",
+      imageSize: "1K"
     },
     safetySettings: safetySettings
   };
