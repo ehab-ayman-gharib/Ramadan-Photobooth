@@ -30,8 +30,13 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
             return img;
         };
 
+        // Use era-specific frame if available, otherwise fallback to the default frame
+        const eraFrame = era.frames && era.frames.length > 0 && !era.frames[0].includes('Frames/Ramadan/1.png')
+            ? era.frames[0]
+            : './Result-Screen.png';
+
         const mainImage = createSafeImage(imageSrc, true);
-        const frameImg = createSafeImage('./Result-Screen.png', true);
+        const frameImg = createSafeImage(eraFrame, true);
         const logoImg = createSafeImage('./Splash-Screen/Ramadan-Kareem.png', true);
         const poweredByImg = createSafeImage('./Powered_By_5D.png', true);
         const lanternImg = createSafeImage('./Lantern.png', true);
@@ -59,51 +64,73 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
             const bottomMargin = forPrinting ? 40 : 0;
             const safeH = 1800 - topMargin - bottomMargin;
 
-            // 1. Draw Main Image with Clipping
-            //    Arch inner width is 1076px for a 1200px frame
-            const archInnerWidth = 1076;
-            const archSideInset = (canvas.width - archInnerWidth) / 2;
-            const archTopOffset = topMargin;
+            // Check if we are using a JPG frame (which covers everything) or if it's the Snap a Memory era
+            const isSnapEra = era.id.includes('SNAP_A_MEMORY') || eraFrame.toLowerCase().endsWith('.jpg');
 
-            const imageScale = archInnerWidth / mainImage.width;
-            const scaledWidth = archInnerWidth;
-            const scaledHeight = mainImage.height * imageScale;
+            if (isSnapEra) {
+                // 1. Draw Frame as Background
+                ctx.drawImage(frameImg, 0, topMargin, canvas.width, safeH);
 
-            ctx.save();
-            // Create a clipping rectangle matching the frame's opening to avoid "leaks" at the bottom
-            ctx.beginPath();
-            ctx.rect(archSideInset, archTopOffset, archInnerWidth, safeH);
-            ctx.clip();
+                // 2. Draw Main Image on TOP (Full 9:16, scaled down)
+                // Width = 680 (scaled down more from 850)
+                const targetW = 680;
+                const imageScale = targetW / mainImage.width;
+                const targetH = mainImage.height * imageScale;
 
-            ctx.drawImage(mainImage, archSideInset, archTopOffset, scaledWidth, scaledHeight);
-            ctx.restore();
+                const x = (canvas.width - targetW) / 2;
+                const y = topMargin + 250; // Increased top margin to match the smaller scale
 
-            // 2. Draw Frame - Shifted down for printing
-            ctx.drawImage(frameImg, 0, topMargin, canvas.width, safeH);
+                // Add a very subtle white border to the image to separate it from the frame background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(x - 2, y - 2, targetW + 4, targetH + 4);
 
-            // 3. Draw Lantern
-            const lanternWidth = 180;
-            const lanternHeight = lanternImg.height * (lanternWidth / lanternImg.width);
-            const lanternX = 40;
-            const lanternY = topMargin - 5;
+                ctx.drawImage(mainImage, x, y, targetW, targetH);
+            } else {
+                // 1. Draw Main Image with Clipping (Standard Arch logic)
+                const archInnerWidth = 1076;
+                const archSideInset = (canvas.width - archInnerWidth) / 2;
+                const archTopOffset = topMargin;
 
-            ctx.drawImage(lanternImg, lanternX, lanternY, lanternWidth, lanternHeight);
+                const imageScale = archInnerWidth / mainImage.width;
+                const scaledWidth = archInnerWidth;
+                const scaledHeight = mainImage.height * imageScale;
 
-            // 4. Draw Ramadan Kareem Logo
-            const logoWidth = 180;
-            const logoHeight = logoImg.height * (logoWidth / logoImg.width);
-            const logoX = (canvas.width - logoWidth) / 2;
-            const logoY = topMargin + 130;
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(archSideInset, archTopOffset, archInnerWidth, safeH);
+                ctx.clip();
+                ctx.drawImage(mainImage, archSideInset, archTopOffset, scaledWidth, scaledHeight);
+                ctx.restore();
 
-            ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+                // 2. Draw Frame - Shifted down for printing (Overlay style)
+                ctx.drawImage(frameImg, 0, topMargin, canvas.width, safeH);
+            }
 
-            // 5. Draw Powered By Logo (Bottom Right)
-            const pWidth = 120;
-            const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
-            const pX = canvas.width - pWidth - 90;
-            const pY = topMargin + safeH - pHeight - 25;
+            if (!isSnapEra) {
+                // 3. Draw Lantern
+                const lanternWidth = 180;
+                const lanternHeight = lanternImg.height * (lanternWidth / lanternImg.width);
+                const lanternX = 40;
+                const lanternY = topMargin - 5;
 
-            ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
+                ctx.drawImage(lanternImg, lanternX, lanternY, lanternWidth, lanternHeight);
+
+                // 4. Draw Ramadan Kareem Logo
+                const logoWidth = 180;
+                const logoHeight = logoImg.height * (logoWidth / logoImg.width);
+                const logoX = (canvas.width - logoWidth) / 2;
+                const logoY = topMargin + 130;
+
+                ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
+
+                // 5. Draw Powered By Logo (Bottom Right)
+                const pWidth = 120;
+                const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
+                const pX = canvas.width - pWidth - 90;
+                const pY = topMargin + safeH - pHeight - 25;
+
+                ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
+            }
 
             // 6. Draw 3 Logos (Bottom Left)
             // Positioning it symmetrically to the Powered By logo

@@ -149,7 +149,7 @@ export const ERAS: EraData[] = [
     previewImage: "./Ramadan/Snap-Preview.png",
     icon: "./Eras-Icons/Snap-A-Memory.png",
     scenery: [],
-    frames: ["./Frames/Ramadan/1.png"],
+    frames: ["./Snap_A_Memory.jpg"],
     isAiEnabled: false
   }
 ];
