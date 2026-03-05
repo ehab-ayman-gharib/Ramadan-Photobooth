@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { EraData, FaceDetectionResult } from '../types';
-import { Download, RotateCcw, Share2, QrCode, Loader2, Printer, CheckCircle2, XCircle } from 'lucide-react';
+import { Download, RotateCcw, Share2, QrCode, Loader2, Printer, CheckCircle2, XCircle, Settings } from 'lucide-react';
 
 interface ResultScreenProps {
   imageSrc: string;        // Digital version (No margins/frame)
@@ -28,29 +28,51 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   const [showPrinterSettings, setShowPrinterSettings] = useState(false);
   const [printStatus, setPrintStatus] = useState<'idle' | 'printing' | 'success' | 'error'>('idle');
 
-  useEffect(() => {
-    // Fetch printers if in Electron
-    const isElectron = navigator.userAgent.indexOf('Electron') !== -1;
-    if (isElectron && (window as any).require) {
-      const { ipcRenderer } = (window as any).require('electron');
-      ipcRenderer.invoke('get-printers').then(({ printers: pList, config }: { printers: any[], config: any }) => {
-        setPrinters(pList);
+  const fetchPrinters = async () => {
+    try {
+      // Robust Electron detection
+      const isElectron = !!(window && (window as any).require && (window as any).require('electron'));
 
-        // Priority: 
-        // 1. Manually saved in LocalStorage from previous session
-        // 2. Hardcoded in printer-config.json
-        // 3. System Default
-        if (!selectedPrinter) {
-          if (config.printerName) {
-            setSelectedPrinter(config.printerName);
-          } else {
-            const defaultP = pList.find(p => p.isDefault);
-            if (defaultP) setSelectedPrinter(defaultP.name);
+      if (isElectron) {
+        const { ipcRenderer } = (window as any).require('electron');
+        const data = await ipcRenderer.invoke('get-printers');
+
+        if (data && data.printers) {
+          console.log('[Printer] Fetched printers:', data.printers.length);
+          setPrinters(data.printers);
+
+          // Priority: 
+          // 1. Manually saved in LocalStorage from previous session
+          // 2. Hardcoded in printer-config.json
+          // 3. System Default
+          let targetPrinter = selectedPrinter;
+          if (!targetPrinter) {
+            if (data.config && data.config.printerName) {
+              targetPrinter = data.config.printerName;
+            } else {
+              const defaultP = data.printers.find((p: any) => p.isDefault);
+              if (defaultP) targetPrinter = defaultP.name;
+            }
+            if (targetPrinter) setSelectedPrinter(targetPrinter);
           }
         }
-      });
+      } else {
+        console.warn('[Printer] Not running in Electron environment');
+      }
+    } catch (err) {
+      console.error('[Printer] Failed to fetch printers:', err);
     }
+  };
+
+  useEffect(() => {
+    fetchPrinters();
   }, []);
+
+  useEffect(() => {
+    if (showPrinterSettings) {
+      fetchPrinters();
+    }
+  }, [showPrinterSettings]);
 
   const handlePrinterChange = (name: string) => {
     setSelectedPrinter(name);
@@ -211,6 +233,15 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
   return (
     <div className="h-full w-full relative overflow-hidden bg-slate-950 flex flex-col items-center justify-center">
+      {/* 0. Printer Setup Floating Button (Reference-style) */}
+      <button
+        onClick={() => setShowPrinterSettings(true)}
+        className="absolute top-6 right-6 z-[150] w-16 h-16 bg-blue-600 hover:bg-blue-500 text-white rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition-all active:scale-90 group border-4 border-white/20"
+        title="Printer Settings"
+      >
+        <Printer size={32} strokeWidth={2.5} />
+      </button>
+
       {/* 1. Background Layer */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <img

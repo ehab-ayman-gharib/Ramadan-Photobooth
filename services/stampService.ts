@@ -112,7 +112,7 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
             const tlX = 80;
             const tlY = topMargin + safeH - threeLogosHeight - 70;
 
-            ctx.drawImage(threeLogosImg, tlX, tlY, threeLogosWidth, threeLogosHeight);
+            // ctx.drawImage(threeLogosImg, tlX, tlY, threeLogosWidth, threeLogosHeight);
 
             resolve(canvas.toDataURL('image/png', 0.9));
         };
