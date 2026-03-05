@@ -3,7 +3,7 @@ import { EraData } from '../types';
 export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boolean = true): Promise<string> => {
     return new Promise((resolve) => {
         let assetsLoaded = 0;
-        const totalAssets = 6; // Generated Image + Frame + Logo + Powered By + Lantern + 3 Logos
+        const totalAssets = 7; // Generated Image + Frame + Logo + Powered By + Lantern + 3 Logos + Flowers
 
         const onAssetLoad = () => {
             assetsLoaded++;
@@ -41,6 +41,7 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
         const poweredByImg = createSafeImage('./Powered_By_5D.png', true);
         const lanternImg = createSafeImage('./Lantern.png', true);
         const threeLogosImg = createSafeImage('./3 logos.png', true);
+        const flowersImg = createSafeImage('./Flowers-Wedding-Frame.png', true);
 
         const processComposition = () => {
             const canvas = document.createElement('canvas');
@@ -85,6 +86,11 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
                 ctx.fillRect(x - 2, y - 2, targetW + 4, targetH + 4);
 
                 ctx.drawImage(mainImage, x, y, targetW, targetH);
+
+                // 2b. Draw Flowers (Top-Left)
+                const flowerW = 350;
+                const flowerH = flowersImg.height * (flowerW / flowersImg.width);
+                ctx.drawImage(flowersImg, -80, topMargin - 90, flowerW, flowerH);
             } else {
                 // 1. Draw Main Image with Clipping (Standard Arch logic)
                 const archInnerWidth = 1076;
