@@ -13,6 +13,7 @@ const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(AppScreen.SPLASH);
   const [selectedEra, setSelectedEra] = useState<EraData | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [printImage, setPrintImage] = useState<string | null>(null);
   const [generatedPrompt, setGeneratedPrompt] = useState<string>('');
   const [faceDetectionResult, setFaceDetectionResult] = useState<FaceDetectionResult | null>(null);
   const [sessionKey, setSessionKey] = useState(0);
@@ -63,10 +64,14 @@ const App: React.FC = () => {
 
         setGeneratedPrompt(resultPrompt);
 
-        // Apply Frame and Background
-        const framedImage = await applyEraStamp(resultImage, activeEra);
+        // Digital version - With Frame but NO Margins
+        const digitalFramed = await applyEraStamp(resultImage, activeEra, false);
+        setGeneratedImage(digitalFramed);
 
-        setGeneratedImage(framedImage);
+        // Print version - With Frame AND Margins
+        const printFramed = await applyEraStamp(resultImage, activeEra, true);
+        setPrintImage(printFramed);
+
         setCurrentScreen(AppScreen.RESULT);
         return; // Success! Exit the function
       } catch (error) {
@@ -87,6 +92,7 @@ const App: React.FC = () => {
 
   const handleRestart = () => {
     setGeneratedImage(null);
+    setPrintImage(null);
     setGeneratedPrompt('');
     setSelectedEra(null);
     setFaceDetectionResult(null);
@@ -125,6 +131,7 @@ const App: React.FC = () => {
           selectedEra && generatedImage ? (
             <ResultScreen
               imageSrc={generatedImage}
+              printImageSrc={printImage || generatedImage}
               prompt={generatedPrompt}
               era={selectedEra}
               faceData={faceDetectionResult}

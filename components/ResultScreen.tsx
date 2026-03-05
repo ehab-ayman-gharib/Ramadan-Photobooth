@@ -3,7 +3,8 @@ import { EraData, FaceDetectionResult } from '../types';
 import { Download, RotateCcw, Share2, QrCode, Loader2, Printer, CheckCircle2, XCircle } from 'lucide-react';
 
 interface ResultScreenProps {
-  imageSrc: string;
+  imageSrc: string;        // Digital version (No margins/frame)
+  printImageSrc: string;   // Print version (With margins/frame)
   prompt: string;
   era: EraData;
   faceData: FaceDetectionResult | null;
@@ -11,7 +12,15 @@ interface ResultScreenProps {
   onUpdateImage: (newImage: string) => void;
 }
 
-export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, era, faceData, onRestart, onUpdateImage }) => {
+export const ResultScreen: React.FC<ResultScreenProps> = ({
+  imageSrc,
+  printImageSrc,
+  prompt,
+  era,
+  faceData,
+  onRestart,
+  onUpdateImage
+}) => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [printers, setPrinters] = useState<any[]>([]);
@@ -140,7 +149,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, er
     if (isElectron && (window as any).require) {
       try {
         const { ipcRenderer } = (window as any).require('electron');
-        const result = await ipcRenderer.invoke('print-image', { imageSrc, printerName: selectedPrinter });
+        const result = await ipcRenderer.invoke('print-image', { imageSrc: printImageSrc, printerName: selectedPrinter });
 
         if (result.success) {
           setPrintStatus('success');
@@ -183,7 +192,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({ imageSrc, prompt, er
             </style>
           </head>
           <body>
-            <img src="${imageSrc}" />
+            <img src="${printImageSrc}" />
             <script>
               window.onload = () => {
                 window.focus();

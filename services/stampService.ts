@@ -1,9 +1,9 @@
 import { EraData } from '../types';
 
-export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> => {
+export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boolean = true): Promise<string> => {
     return new Promise((resolve) => {
         let assetsLoaded = 0;
-        const totalAssets = 5; // Generated Image + Frame + Logo + Powered By + Lantern
+        const totalAssets = 6; // Generated Image + Frame + Logo + Powered By + Lantern + 3 Logos
 
         const onAssetLoad = () => {
             assetsLoaded++;
@@ -35,6 +35,7 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
         const logoImg = createSafeImage('./Splash-Screen/Ramadan-Kareem.png', true);
         const poweredByImg = createSafeImage('./Powered_By_5D.png', true);
         const lanternImg = createSafeImage('./Lantern.png', true);
+        const threeLogosImg = createSafeImage('./3 logos.png', true);
 
         const processComposition = () => {
             const canvas = document.createElement('canvas');
@@ -51,11 +52,12 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
 
             // SELPHY Strategy: 
             // - NO horizontal margin (Full Bleed left/right)
-            // - Top Margin: 120px (Increase to clear printer crop @ top)
+            // - Top Margin: 90px (Increase to clear printer crop @ top)
             // - Bottom Margin: 40px (User confirmed this is perfect)
-            const topMargin = 90;
-            const bottomMargin = 40;
-            const safeH = 1800 - topMargin - bottomMargin; // 1640
+            // For Digital version (forPrinting = false), we use 0 margins
+            const topMargin = forPrinting ? 90 : 0;
+            const bottomMargin = forPrinting ? 40 : 0;
+            const safeH = 1800 - topMargin - bottomMargin;
 
             // 1. Draw Main Image with Clipping
             //    Arch inner width is 1076px for a 1200px frame
@@ -76,7 +78,7 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
             ctx.drawImage(mainImage, archSideInset, archTopOffset, scaledWidth, scaledHeight);
             ctx.restore();
 
-            // 2. Draw Frame - Shifted down
+            // 2. Draw Frame - Shifted down for printing
             ctx.drawImage(frameImg, 0, topMargin, canvas.width, safeH);
 
             // 3. Draw Lantern
@@ -95,13 +97,22 @@ export const applyEraStamp = (imageSrc: string, era: EraData): Promise<string> =
 
             ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
-            // 5. Draw Powered By Logo
+            // 5. Draw Powered By Logo (Bottom Right)
             const pWidth = 120;
             const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
-            const pX = canvas.width - pWidth - 160;
+            const pX = canvas.width - pWidth - 90;
             const pY = topMargin + safeH - pHeight - 25;
 
             ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
+
+            // 6. Draw 3 Logos (Bottom Left)
+            // Positioning it symmetrically to the Powered By logo
+            const threeLogosWidth = 500; // Increased by 50% from 180
+            const threeLogosHeight = threeLogosImg.height * (threeLogosWidth / threeLogosImg.width);
+            const tlX = 80;
+            const tlY = topMargin + safeH - threeLogosHeight - 70;
+
+            ctx.drawImage(threeLogosImg, tlX, tlY, threeLogosWidth, threeLogosHeight);
 
             resolve(canvas.toDataURL('image/png', 0.9));
         };
