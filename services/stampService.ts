@@ -148,10 +148,10 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
                 ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
                 // 5. Draw Powered By Logo (Bottom Right)
-                const pWidth = 200;
+                const pWidth = canvas.width * 0.30; // 30% width
                 const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
-                const pX = canvas.width - pWidth - 75;
-                const pY = topMargin + safeH - pHeight;
+                const pX = canvas.width - pWidth - (canvas.width * 0.12); // 12% right
+                const pY = canvas.height - (canvas.height * 0.036) - pHeight - 115; // 3.6% bottom
 
                 ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
             }
