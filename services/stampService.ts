@@ -38,10 +38,11 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
         const mainImage = createSafeImage(imageSrc, true);
         const frameImg = createSafeImage(eraFrame, true);
         const logoImg = createSafeImage('./Splash-Screen/Ramadan-Kareem.png', true);
-        const poweredByImg = createSafeImage('./Powered_By_5D.png', true);
+        const poweredByImg = createSafeImage('./5dVR 10 years logo.png', true); // it was './Powered by 5dVR.png'
         const lanternImg = createSafeImage('./Lantern.png', true);
         const threeLogosImg = createSafeImage('./3 logos.png', true);
         const flowersImg = createSafeImage('./Flowers-Wedding-Frame.png', true);
+        const vr10LogoImg = createSafeImage('./5dVR 10 years logo.png', true);
 
         const processComposition = () => {
             const canvas = document.createElement('canvas');
@@ -66,7 +67,11 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
             const safeH = 1800 - topMargin - bottomMargin;
 
             // Check if we are using a JPG frame (which covers everything) or if it's the Snap a Memory era
-            const isSnapEra = era.id.includes('SNAP_A_MEMORY') || eraFrame.toLowerCase().endsWith('.jpg');
+            const isSnapEra = era.id.includes(
+                'SPECIFIC_ERA' // it should be 'SNAP_A_MEMORY'
+            )
+                // || eraFrame.toLowerCase().endsWith('.jpg')
+                ;
 
             if (isSnapEra) {
                 // 1. Draw Frame as Background
@@ -104,7 +109,8 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
                 const flowerW = 350;
                 const flowerH = flowersImg.height * (flowerW / flowersImg.width);
                 ctx.drawImage(flowersImg, -80, topMargin - 90, flowerW, flowerH);
-            } else {
+            }
+            else {
                 // 1. Draw Main Image with Clipping (Standard Arch logic)
                 const archInnerWidth = 1076;
                 const archSideInset = (canvas.width - archInnerWidth) / 2;
@@ -143,10 +149,10 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
                 ctx.drawImage(logoImg, logoX, logoY, logoWidth, logoHeight);
 
                 // 5. Draw Powered By Logo (Bottom Right)
-                const pWidth = 120;
+                const pWidth = 200;
                 const pHeight = poweredByImg.height * (pWidth / poweredByImg.width);
-                const pX = canvas.width - pWidth - 90;
-                const pY = topMargin + safeH - pHeight - 25;
+                const pX = canvas.width - pWidth - 75;
+                const pY = topMargin + safeH - pHeight;
 
                 ctx.drawImage(poweredByImg, pX, pY, pWidth, pHeight);
             }
