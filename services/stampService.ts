@@ -72,20 +72,33 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
                 // 1. Draw Frame as Background
                 ctx.drawImage(frameImg, 0, topMargin, canvas.width, safeH);
 
-                // 2. Draw Main Image on TOP (Full 9:16, scaled down)
-                // Width = 680 (scaled down more from 850)
-                const targetW = 680;
-                const imageScale = targetW / mainImage.width;
-                const targetH = mainImage.height * imageScale;
-
+                // 2. Draw Main Image on TOP (Premium Wider Portrait)
+                const targetW = 1000; // Wider to fill more of the frame
+                const targetH = 1300; // Taller for more presence, but keeping safe gap
                 const x = (canvas.width - targetW) / 2;
-                const y = topMargin + 250; // Increased top margin to match the smaller scale
+                const y = topMargin + 140; // High enough to clear floral decor
 
-                // Add a very subtle white border to the image to separate it from the frame background
+                // Crop logic from 9:16 to wider portrait box (No more stretching!)
+                const inputAspect = mainImage.width / mainImage.height;
+                const targetAspect = targetW / targetH;
+
+                let sW, sH, sX, sY;
+                if (inputAspect > targetAspect) {
+                    sH = mainImage.height;
+                    sW = sH * targetAspect;
+                    sX = (mainImage.width - sW) / 2;
+                    sY = 0;
+                } else {
+                    sW = mainImage.width;
+                    sH = sW / targetAspect;
+                    sX = 0;
+                    sY = (mainImage.height - sH) / 2;
+                }
+
+                // Add border and Draw ONCE
                 ctx.fillStyle = 'white';
                 ctx.fillRect(x - 2, y - 2, targetW + 4, targetH + 4);
-
-                ctx.drawImage(mainImage, x, y, targetW, targetH);
+                ctx.drawImage(mainImage, sX, sY, sW, sH, x, y, targetW, targetH);
 
                 // 2b. Draw Flowers (Top-Left)
                 const flowerW = 350;
