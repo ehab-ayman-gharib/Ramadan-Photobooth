@@ -2,6 +2,7 @@ import React from 'react';
 import { EraData, EraId } from '../types';
 import { ERAS } from '../constants';
 import { CameraCapture } from './CameraCapture';
+import { LogoOverlay } from './LogoOverlay';
 
 interface EraSelectionProps {
     onSelect: (era: EraData) => void;
@@ -82,6 +83,8 @@ export const EraSelection: React.FC<EraSelectionProps> = ({ onSelect, capturedIm
 
                 </div>
             </div>
+
+            <LogoOverlay />
         </div>
     );
 };

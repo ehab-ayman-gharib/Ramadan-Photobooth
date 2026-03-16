@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { RefreshCw, AlertCircle, ChevronLeft } from 'lucide-react';
 import { loadFaceApiModels, detectFaces } from '../services/faceService';
 import { EraData, FaceDetectionResult, EraId } from '../types';
+import { LogoOverlay } from './LogoOverlay';
 
 interface CameraCaptureProps {
   era: EraData | null;
@@ -276,6 +277,8 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ era, onCapture, on
           </div>
         </div>
       )}
+      {/* 5dVR 10 years logo overlay */}
+      <LogoOverlay hidden={hideUI} />
     </div>
   );
 };

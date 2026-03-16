@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { EraData, EraId, FaceDetectionResult } from '../types';
 import { CameraCapture } from './CameraCapture';
 import { ERAS } from '../constants';
+import { LogoOverlay } from './LogoOverlay';
 
 interface SplashScreenProps {
   onStart: () => void;
@@ -63,6 +64,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onStart, onSelectEra
 
       {/* Footer & Eras Layer Removed */}
 
+      <LogoOverlay />
     </div>
   );
 };

@@ -42,7 +42,6 @@ export const applyEraStamp = (imageSrc: string, era: EraData, forPrinting: boole
         const lanternImg = createSafeImage('./Lantern.png', true);
         const threeLogosImg = createSafeImage('./3 logos.png', true);
         const flowersImg = createSafeImage('./Flowers-Wedding-Frame.png', true);
-        const vr10LogoImg = createSafeImage('./5dVR 10 years logo.png', true);
 
         const processComposition = () => {
             const canvas = document.createElement('canvas');

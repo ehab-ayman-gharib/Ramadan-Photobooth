@@ -1,4 +1,5 @@
 import React from 'react';
+import { LogoOverlay } from './LogoOverlay';
 
 export const LoadingScreen: React.FC = () => {
   return (
@@ -43,6 +44,8 @@ export const LoadingScreen: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <LogoOverlay />
     </div>
   );
 };
